@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="{{url('assets')}}/css/bootstrap.min.css" rel="stylesheet">
+        <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+        <link href="{{url('assets')}}/css/style.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="{{url('assets')}}/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.ckeditor.com/ckeditor5/30.0.0/classic/ckeditor.js"></script>
+        <script type="text/javascript" src="{{url('assets')}}/js/custom.js"></script>
+        
+        <title>KGA - Master | @yield('page')</title>
+    </head>
+    {{-- oncontextmenu="return false" --}}
+    <body >
+        <div id="app-preloader">
+            <div class="preloader-spinner">
+                <svg class="preloader-spinner-icon" viewBox="0 0 24 24">
+                    <path d="M 22.49772,12.000001 A 10.49772,10.497721 0 0 1 12,22.497722 10.49772,10.497721 0 0 1 1.5022797,12.000001 10.49772,10.497721 0 0 1 12,1.5022797 10.49772,10.497721 0 0 1 22.49772,12.000001 Z" fill="none" stroke-linecap="round" />
+                </svg>
+            </div>
+        </div>
+        @php
+            $is_service_partner_only = false;
+            if(Auth::user()->id == 8){
+                $is_service_partner_only = true;
+                // die("Hi");
+            }
+            $accessUserManagment = userAccess(Auth::user()->role_id,1);
+            $accessServicePartner = userAccess(Auth::user()->role_id,2);
+            $accessInstallation = userAccess(Auth::user()->role_id,3);
+            $accessRepair = userAccess(Auth::user()->role_id,4);
+            $accessIncompleteInstallation = userAccess(Auth::user()->role_id,5);
+            $accessChimneyMaintenance = userAccess(Auth::user()->role_id,6);
+            $accessInhouseDapServicing = userAccess(Auth::user()->role_id,7);
+            $accessProductManagement = userAccess(Auth::user()->role_id,8);
+            $accessPO = userAccess(Auth::user()->role_id,9);
+            $accessStock = userAccess(Auth::user()->role_id,10);
+            $accessSalesOrder = userAccess(Auth::user()->role_id,11);
+            $accessReport = userAccess(Auth::user()->role_id,12);
+            $accessAccounting = userAccess(Auth::user()->role_id,13);
+            $accessSupplier = userAccess(Auth::user()->role_id,14);
+            $accessDealer = userAccess(Auth::user()->role_id,15);
+            $accessDealerPurchaseOrder = userAccess(Auth::user()->role_id,16);
+			$amcManagement = userAccess(Auth::user()->role_id,17);
+        @endphp
+        <aside class="side__bar shadow-sm">
+            <div class="admin__logo">
+                <div class="logo">
+                <img src="{{url('assets')}}/images/kga_logo.png">
+                </div>
+                <div class="admin__info">
+                <h1>{{Auth::user()->name}}</h1>
+                <h4>{{Auth::user()->email}}</h4>
+                </div>
+            </div>
+            <nav class="main__nav">
+                <ul>
+                    <li class="@if(request()->is('home*')) {{'active'}} @endif">
+                        <a href="{{route('home')}}"><i class="fi fi-br-home"></i> <span>Home</span></a>
+                    </li>
+					
+                     <!-- AMC -->
+					@php
+						$amcActive = request()->is('amc/*');
+					@endphp
+                     @if ($amcManagement || $accessUserManagment)                    
+                    <li class="{{$amcActive ? 'menu-open' : ''}}">
+                        <a href="#"><i class="fi fi-br-hammer"></i> <span>AMC MANAGEMENT</span></a>
+                        <ul style="{{ $amcActive ? 'display: block;' : '' }}">
+                            @if (Auth::user()->role_id == 6)
+							 <li @if(request()->is('amc/search*')) class="active" @endif>
+                                <a href="{{ route('amc.search') }}"><i class="fi fi-br-settings"></i> <span>AMC Search</span> </a> 
+                            </li>
+							
+                            <li @if(request()->is('amc/ho-sale*')) class="active" @endif>
+                                <a href="{{ route('amc.ho-sale') }}"><i class="fi fi-br-settings"></i> <span>HO Sale</span> </a> 
+                            </li>
+                            <li @if(request()->is('amc/subscription-amc-data*')) class="active" @endif>
+                                <a href="{{ route('amc.subscription-amc-data') }}"><i class="fi fi-br-settings"></i> <span>Subscriptions</span> </a> 
+                            </li>
+							@elseif(Auth::user()->role_id == 4)
+							<li @if(request()->is('amc/search*')) class="active" @endif>
+                                <a href="{{ route('amc.search') }}"><i class="fi fi-br-settings"></i> <span>AMC Search</span> </a> 
+                            </li>
+							<li @if(request()->is('amc/add*')) class="active" @endif>
+                                <a href="{{ route('amc.add') }}"><i class="fi fi-br-settings"></i> <span>Add Request</span> </a> 
+                            </li>
+                            <li @if(request()->is('amc/subscription-amc-data*')) class="active" @endif>
+                                <a href="{{ route('amc.subscription-amc-data') }}"><i class="fi fi-br-settings"></i> <span>Subscriptions</span> </a> 
+                            </li>
+							@elseif(Auth::user()->role_id == 1 || $amcManagement)
+							<li @if(request()->is('amc/plan-assets*')) class="active" @endif>
+                                <a href="{{ route('amc.plan-assets') }}"><i class="fi fi-br-settings"></i> <span>Plans Assets</span> </a> 
+                            </li>
+                            <li @if(request()->is('amc/plan-type*')) class="active" @endif>
+                                <a href="{{ route('amc.plan-type') }}"><i class="fi fi-br-settings"></i> <span>Plans Master</span> </a> 
+                            </li>
+                            <li @if(request()->is('amc/incentive-master*')) class="active" @endif>
+                                <a href="{{ route('amc.incentive-master') }}"><i class="fi fi-br-settings"></i> <span>Incentives Master</span> </a> 
+                            </li>
+                            <li @if(request()->is('amc/search*')) class="active" @endif>
+                                <a href="{{ route('amc.search') }}"><i class="fi fi-br-settings"></i> <span>AMC Search</span> </a> 
+                            </li>
+                            <li @if(request()->is('amc/ho-sale*')) class="active" @endif>
+                                <a href="{{ route('amc.ho-sale') }}"><i class="fi fi-br-settings"></i> <span>HO Sale</span> </a> 
+                            </li>
+                            <li @if(request()->is('amc/subscription-amc-data*')) class="active" @endif>
+                                <a href="{{ route('amc.subscription-amc-data') }}"><i class="fi fi-br-settings"></i> <span>Subscriptions</span> </a> 
+                            </li>
+                            @endif
+                        </ul>
+                    </li> 
+                    @endif  
+                    @if ($accessUserManagment)                    
+                    <li>
+                        <a href="#"><i class="fi fi-br-user"></i> <span>User Management</span></a>
+                        <ul>
+                            @if (Auth::user()->role_id == 1)
+                            <li @if(request()->is('manager/*')) class="active" @endif>
+                                <a href="{{ route('role-management.list') }}"><i class="fi fi-br-user-time"></i> <span>Roles</span> </a> 
+                            </li>
+                            @endif
+                            <li @if(request()->is('manager/*')) class="active" @endif>
+                                <a href="{{ route('manager.list') }}"><i class="fi fi-br-user-time"></i> <span>Manager</span> </a> 
+                            </li>
+                            <li @if(request()->is('staffs/*')) class="active" @endif>
+                                <a href="{{route('staffs.list')}}"><i class="fi fi-br-user-add"></i> <span>Staff (Godown Managers)</span> </a>
+                            </li>
+                        </ul>
+                    </li>
+                    @endif
+					@if(!$amcManagement || $accessUserManagment || $accessServicePartner || $accessInstallation || $accessRepair)
+                    <li>
+                        @php
+                            $sp_mng_text = "Installation & Repair Management";
+                            if($accessServicePartner){
+                                $sp_mng_text = "Service Partner Management";
+                            } 
+                        @endphp
+                        <a href="#"><i class="fi fi-br-hammer-war"></i> <span>{{$sp_mng_text}}</span></a>
+                        <ul>
+                            @if ($accessServicePartner)
+                            <li 
+                            @if(request()->is('service-partner/*')) class="active" @endif
+                            >
+                                <a href="{{route('service-partner.list')}}"><i class="fi fi-br-users"></i> <span>Partner List</span> </a>
+                            </li>
+                            @endif
+                            
+                            @if ($accessInstallation)                                
+                            <li 
+                            @if(request()->is('installation/*')) class="active" @endif
+                            >
+                                <a href="{{ route('installation.list') }}"><i class="fi fi-br-location-alt"></i> <span>All Product Installation Request</span> </a> 
+                            </li>
+                            @endif
+                            @if ($accessRepair)
+                               
+                            <li 
+                            @if(request()->is('repair/*')) class="active" @endif
+                            >
+                                <a href="{{ route('repair.list') }}"><i class="fi fi-br-location-alt"></i> <span>Repair Request</span> </a> 
+                            </li> 
+                            @endif
+                            
+                            
+                        </ul>
+                    </li>
+					@endif
+                    @if ($accessIncompleteInstallation)
+                    <li>
+                        <a href="#"><i class="fi fi-br-user"></i> <span>Incomplete Installation</span></a>
+                        <ul>
+                            <li 
+                            @if(request()->is('incomplete-installation/list')) class="active" @endif
+                            >
+                                <a href="{{ route('incomplete-installation.list') }}"><i class="fi fi-br-location-alt"></i> <span>Logs</span> </a>
+                            </li>
+                            <li 
+                            @if(request()->is('incomplete-installation/clear-form')) class="active" @endif
+                            >
+                                <a href="{{ route('incomplete-installation.clear-form') }}"><i class="fi fi-br-location-alt"></i> <span>Complete</span> </a>
+                            </li>
+                        </ul>
+                    </li>
+                    @endif
+                    @if ($accessChimneyMaintenance)
+                    <li>
+                        <a href="#"><i class="fi fi-br-user"></i> <span>Chimney Maintenance & Repair Request</span></a>
+                        <ul>
+                            <li @if(request()->is('maintenance/checkitemstatus') || request()->is('maintenance/add') ) class="active" @endif
+                             >
+                                <a href="{{ route('maintenance.checkitemstatus') }}"><i class="fi fi-br-location-alt"></i> <span>Add Request</span> </a>
+                            </li>
+                            <li 
+                            @if(request()->is('maintenance/list') ) class="active" @endif
+                            >
+                                <a href="{{ route('maintenance.list') }}"><i class="fi fi-br-location-alt"></i> <span>List Request</span> </a>
+                            </li>
+                        </ul>
+                    </li>
+                    @endif
+                    @if ($accessInhouseDapServicing)
+                    <li>
+                        <a href="#"><i class="fi fi-br-user"></i> <span>Inhouse DAP Servicing</span></a>
+                        <ul>
+                            <li class="@if(request()->is('service-centre*')) {{'active'}} @endif">
+                                <a href="{{route('service-centre.list')}}"><i class="fi fi-br-users-alt"></i> <span>Service Centre Users </span></a>
+                            </li>
+                            <li class="@if(request()->is('dap-services/checkdapitemstatus') || request()->is('dap-services/add')) {{'active'}} @endif" >
+                                <a href="{{ route('dap-services.checkdapitemstatus') }}"><i class="fi fi-br-location-alt"></i> <span>Add Request</span> </a>
+                            </li>
+                            <li @if(request()->is('dap-services/list') || request()->is('dap-services/generate-road-challan') ) class="active" @endif >
+                                <a href="{{ route('dap-services.list') }}"><i class="fi fi-br-location-alt"></i> <span>List Bookings</span> </a>
+                            </li>
+                            <li @if(request()->is('dap-services/centre-reached-items') ) class="active" @endif >
+                                <a href="{{ route('dap-services.centre-reached-items') }}"><i class="fi fi-br-location-alt"></i> <span>Service Centre Reached Items</span> </a>
+                            </li>
+                            <li @if(request()->is('dap-services/centre-returned-items') ) class="active" @endif>
+                                <a href="{{ route('dap-services.centre-returned-items') }}"><i class="fi fi-br-location-alt"></i> <span>Service Centre Returned Items</span> </a>
+                            </li>
+                            <li @if(request()->is('dap-services/send-service-centre') ) class="active" @endif>
+                                <a href="{{ route('dap-services.send-service-centre') }}"><i class="fi fi-br-location-alt"></i> <span>SEND TO SERVICE CENTRE</span> </a>
+                            </li>
+                        </ul>
+                    </li>
+                    @endif
+                    @if ($accessUserManagment)    
+                        <li>
+                            <a href="#"><i class="fi fi-br-hammer-war"></i> <span>Customer Point Repair</span></a>
+                            <ul>
+                                <li 
+                                @if(request()->is('customer-point-repair/service-partner/list*')) class="active" @endif
+                                >
+                                    <a href="{{route('customer-point-repair.list')}}"><i class="fi fi-br-users"></i> <span>Partner List</span> </a>
+                                </li>
+                                <li 
+                                @if(request()->is('customer-point-repair/list-booking*')) class="active" @endif
+                                >
+                                    <a href="{{route('customer-point-repair.list-booking')}}"><i class="fi fi-br-users"></i> <span>Booking List</span> </a>
+                                </li>
+                                <li 
+                                @if(request()->is('customer-point-repair/add-request*')) class="active" @endif
+                                >
+                                    <a href="{{route('customer-point-repair.check-product-details')}}"><i class="fi fi-br-users"></i> <span>Add Request</span> </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
+                    @if($accessSupplier) 
+                    <li class="@if(request()->is('supplier*')) {{'active'}} @endif">
+                        <a href="{{route('supplier.list')}}"><i class="fi fi-br-users-alt"></i> <span>Supplier</span></a>
+                    </li>
+                    @endif
+                    {{-- <li class="@if(request()->is('customer*')) {{'active'}}  @endif">
+                        <a href="{{route('customer.list')}}"><i class="fi fi-br-users"></i> <span>Customer</span></a>
+                    </li>  --}}
+                    @if ($accessDealer)
+                    <li class="@if(request()->is('dealers*')) {{'active'}}  @endif">
+                        <a href="{{route('dealers.list')}}"><i class="fi fi-br-users"></i> <span>Dealer</span></a>
+                    </li>    
+                    @endif   
+                    @if ($accessProductManagement)
+                    <li>
+                        <a href="#"><i class="fi fi-br-money-check-edit-alt"></i> <span>Product Management</span></a>
+                        <ul>
+                            <li @if(request()->is('category/*') && (Request::get('type') == '' || Request::get('type') == 'parent')) class="active" @endif>
+                                <a href="{{route('category.list',['type'=>'parent'])}}"><i class="fi fi-br-chart-tree"></i> <span>Category (Class)</span></a>
+                            </li>
+                            <li @if(request()->is('category/*') && (Request::get('type') == 'child')) class="active" @endif>
+                                <a href="{{route('category.list',['type'=>'child'])}}"><i class="fi fi-br-chart-tree"></i> <span>Sub Category (Group)</span></a>
+                            </li>
+                            <li class="@if(request()->is('product*')) {{'active'}} @endif">
+                                <a href="{{route('product.list')}}"><i class="fi fi-br-cube"></i> <span>Product (Goods & Spares)</span></a>
+                            </li>
+                        </ul>
+                    </li>   
+                    @endif   
+                    @if ($accessPO)
+                    <li>                        
+                        <a href="#"><i class="fi fi-br-money-check-edit-alt"></i> <span>Purchase Order</span></a>
+                        <ul>
+                            <li @if(request()->is('purchase-order/*') && (Request::get('po_type') == '' || Request::get('po_type') == 'po')) class="active" @endif>
+                                <a href="{{route('purchase-order.list')}}">
+                                    <i class="fi fi-br-truck-container"></i>
+                                    <span>PO</span> 
+                                </a>
+                            </li>
+                            <li @if(request()->is('grn/*')) class="active" @endif>
+                                <a href="{{ route('grn.index') }}">
+                                    <i class="fi fi-br-truck-couch"></i>
+                                    <span>GRN</span> 
+                                </a>
+                            </li>
+                            
+                        </ul>
+                    </li>  
+                    @endif  
+                    <!-- @if ($accessDealerPurchaseOrder)                      
+                    <li>                        
+                        <a href="#"><i class="fi fi-br-money-check-edit-alt"></i> <span>Dealer Purchase Order</span></a>
+                        <ul>
+                           
+                            <li @if(request()->is('dealer-purchase-order/*')) class="active" @endif>
+                                <a href="{{ route('dealer-purchase-order.list') }}">
+                                    <i class="fi fi-br-truck-couch"></i>
+                                    <span>List</span> 
+                                </a>
+                            </li>
+                            
+                        </ul>
+                    </li>    
+                    @endif -->
+
+                    @if ($accessStock)
+                    <li @if(request()->is('stock/*')) class="active" @endif>
+                        <a href="{{ route('stock.list') }}"><i class="fi fi-br-cube"></i> <span>Stock Inventory</span></a>
+                    </li>
+                    
+                    <li>
+                        <a href="#"><i class="fi fi-br-cube"></i> <span> Dead Spare Inventory </span></a>
+                        <ul>
+                            <li  @if(request()->is('spare-inventory/list')) class="active" @endif>
+                                <a href="{{ route('spare-inventory.list') }}">
+                                    <i class="fi fi-br-cube"></i>
+                                    <span>All Dead Spare List</span>
+                                </a>
+                            </li>
+                            <li  @if(request()->is('spare-return/list')) class="active" @endif>
+                                <a href="{{ route('spare-return.list') }}">
+                                    <i class="fi fi-br-cube"></i>
+                                    <span>Service Partner Returned Spare</span>
+                                </a>
+                            </li>
+                            <li @if(request()->is('spare-inventory/supplier-return-list')) class="active" @endif>
+                                <a href="{{ route('spare-inventory.supplier-return-list') }}">
+                                    <i class="fi fi-br-cube"></i>
+                                    <span>Supplier Returned Spare</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fi fi-br-money-check-edit"></i> <span>Sales return Management</span></a>
+                        <ul>
+                            
+                            <li @if(request()->is('return-spares/*')) class="active" @endif>
+                                <a href="{{ route('return-spares.list') }}">
+                                    <i class="fi fi-br-file-invoice"></i>
+                                    <span>Returned Goods & Spares</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    @endif
+                    @if ($accessSalesOrder)
+                    <li>
+                        <a href="#"><i class="fi fi-br-money-check-edit"></i> <span>Goods & Spare Order Management</span></a>
+                        <ul>
+                            <li @if(request()->is('sales-order/*')) class="active" @endif>
+                                <a href="{{ route('sales-order.list') }}">
+                                    <i class="fi fi-br-file-invoice"></i>
+                                    <span>List Orders</span>
+                                </a>
+                            </li>
+                            <li @if(request()->is('packingslip/*')) class="active" @endif>
+                                <a href="{{ route('packingslip.list') }}">
+                                    <i class="fi fi-br-file-invoice"></i>
+                                    <span>Packing Slips</span>
+                                </a>
+                            </li>
+                            <li @if(request()->is('invoice/*')) class="active" @endif>
+                                <a href="{{ route('invoice.list') }}">
+                                    <i class="fi fi-br-file-invoice"></i>
+                                    <span>Invoices</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                    </li>
+                    @endif
+                    @if ($accessReport)
+                    <li>
+                        <a href="#"><i class="fi fi-br-money-check-edit"></i> <span>Report</span></a>
+                        <ul>
+                            <li @if(request()->is('report/ledger-user')) class="active" @endif>
+                                <a href="{{ route('report.ledger-user') }}">
+                                    <i class="fi fi-br-file-invoice"></i>
+                                    <span>User Ledger</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                    </li>
+                    @endif
+                    @if ($accessAccounting)
+                    <li>
+                        <a href="#"><i class="fi fi-br-money-check-edit"></i> <span>Accounting</span></a>
+                        <ul>
+                            <li @if(request()->is('accounting/payment-list') || request()->is('accounting/payment-add')) class="active" @endif>
+                                <a href="{{ route('accounting.payment-list') }}">
+                                    <i class="fi fi-br-file-invoice"></i>
+                                    <span>Payment</span>
+                                </a>
+                            </li>   
+                            <li @if(request()->is('accounting/list-credit-note')  || request()->is('accounting/add-credit-note')) class="active" @endif>
+                                <a href="{{ route('accounting.list-credit-note') }}">
+                                    <i class="fi fi-br-file-invoice"></i>
+                                    <span>Credit Note</span>
+                                </a>
+                            </li>                            
+                        </ul>
+                    </li> 
+                    @endif
+                    
+                </ul>
+            </nav>
+            <div class="nav__footer">
+                <a class="dropdown-item" href=""
+                 onclick="if (confirm('Are You Sure?')){ event.preventDefault();  document.getElementById('logout-form').submit(); }  else { return false; } "
+                 >
+                    <i class="fi fi-br-sign-out"></i> <span>{{ __('Logout') }}</span>
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </div>
+        </aside>
+        <main class="admin">
+            <header>
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <a href="javascript:void(0); ?>" class="menu_toggle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></a>
+                    </div>
+                    <div class="col-auto ms-auto">
+                        <div class="dropdown profileDropdown">
+                            <button class="btn dropdown-toggle dropdown-toggle-arrow" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{Auth::user()->name}}
+                                {{-- <small>Logged in as {{ ucwords(Auth::user()->role->name) }}</small> --}}
+                                {{-- <small>Logged in as {{ ucwords(Auth::user()->type) }}</small> --}}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                                
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('myprofile') }}">My Profile</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('changepassword') }}">Change Password</a>
+                                </li>                                
+                                                      
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('settings') }}">Settings</a>
+                                </li>
+                                <li>
+                                    <a id="logout" class="dropdown-item" href="" 
+                                    onclick="if (confirm('Are You Sure?')){ event.preventDefault();  document.getElementById('logout-form').submit(); }  else { return false; } "
+                                    >
+                                        <i class="fi fi-br-sign-out"></i> <span>{{ __('Logout') }}</span>
+                                    </a>                    
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+
+                                    <form id="logout-form-hidden" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                        <input type="hidden" name="redirect_url" value="{{ \Route::getFacadeRoot()->current()->uri()
+                                        }}">
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <section class="admin__title">
+                <h1>@yield('page')</h1>
+                <small>@yield('small')</small>
+                <span class="card-body text-end" id="timeout-span"> </span>
+            </section>
+            
+            @yield('content')
+            <footer>
+                <div class="row">
+                    <div class="col-12 text-end">KGA 2021-{{date('Y')}}</div>
+                </div>
+            </footer>
+        </main>
+        
+    </body> 
+    <script>
+        
+
+        $(document).ready(function () {
+            
+        });
+
+
+    </script>   
+</html>

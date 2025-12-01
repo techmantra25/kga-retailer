@@ -1,0 +1,71 @@
+[08-Dec-2022 09:51:29 UTC] PHP Fatal error:  During inheritance of ArrayAccess: Uncaught ErrorException: Return type of Illuminate\Support\Collection::offsetExists($key) should either be compatible with ArrayAccess::offsetExists(mixed $offset): bool, or the #[\ReturnTypeWillChange] attribute should be used to temporarily suppress the notice in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php:1349
+Stack trace:
+#0 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php(11): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(8192, 'Return type of ...', '/home3/wmtoolp6...', 1349)
+#1 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/composer/ClassLoader.php(571): include('/home3/wmtoolp6...')
+#2 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home3/wmtoolp6...')
+#3 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/helpers.php(110): Composer\Autoload\ClassLoader->loadClass('Illuminate\\Supp...')
+#4 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(130): collect(Array)
+#5 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(106): Illuminate\Foundation\PackageManifest->build()
+#6 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(89): Illuminate\Foundation\PackageManifest->getManifest()
+#7 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(78): Illuminate\Foundation\PackageManifest->config('aliases')
+#8 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterFacades.php(26): Illuminate\Foundation\PackageManifest->aliases()
+#9 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(230): Illuminate\Foundation\Bootstrap\RegisterFacades->bootstrap(Object(Illuminate\Foundation\Application))
+#10 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(310): Illuminate\Foundation\Application->bootstrapWith(Array)
+#11 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(127): Illuminate\Foundation\Console\Kernel->bootstrap()
+#12 /home3/wmtoolp6/devbackend.kgaelectronics.com/artisan(37): Illuminate\Foundation\Console\Kernel->handle(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#13 {main} in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php on line 11
+[08-Dec-2022 13:57:36 UTC] PHP Fatal error:  During inheritance of ArrayAccess: Uncaught ErrorException: Return type of Illuminate\Support\Collection::offsetExists($key) should either be compatible with ArrayAccess::offsetExists(mixed $offset): bool, or the #[\ReturnTypeWillChange] attribute should be used to temporarily suppress the notice in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php:1349
+Stack trace:
+#0 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php(11): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(8192, 'Return type of ...', '/home3/wmtoolp6...', 1349)
+#1 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/composer/ClassLoader.php(571): include('/home3/wmtoolp6...')
+#2 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home3/wmtoolp6...')
+#3 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/helpers.php(110): Composer\Autoload\ClassLoader->loadClass('Illuminate\\Supp...')
+#4 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(130): collect(Array)
+#5 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(106): Illuminate\Foundation\PackageManifest->build()
+#6 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(89): Illuminate\Foundation\PackageManifest->getManifest()
+#7 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(78): Illuminate\Foundation\PackageManifest->config('aliases')
+#8 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterFacades.php(26): Illuminate\Foundation\PackageManifest->aliases()
+#9 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(230): Illuminate\Foundation\Bootstrap\RegisterFacades->bootstrap(Object(Illuminate\Foundation\Application))
+#10 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(310): Illuminate\Foundation\Application->bootstrapWith(Array)
+#11 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(127): Illuminate\Foundation\Console\Kernel->bootstrap()
+#12 /home3/wmtoolp6/devbackend.kgaelectronics.com/artisan(37): Illuminate\Foundation\Console\Kernel->handle(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#13 {main} in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php on line 11
+[09-Dec-2022 13:40:33 UTC] PHP Fatal error:  During inheritance of ArrayAccess: Uncaught ErrorException: Return type of Illuminate\Support\Collection::offsetExists($key) should either be compatible with ArrayAccess::offsetExists(mixed $offset): bool, or the #[\ReturnTypeWillChange] attribute should be used to temporarily suppress the notice in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php:1349
+Stack trace:
+#0 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php(11): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(8192, 'Return type of ...', '/home3/wmtoolp6...', 1349)
+#1 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/composer/ClassLoader.php(571): include('/home3/wmtoolp6...')
+#2 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home3/wmtoolp6...')
+#3 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/helpers.php(110): Composer\Autoload\ClassLoader->loadClass('Illuminate\\Supp...')
+#4 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(130): collect(Array)
+#5 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(106): Illuminate\Foundation\PackageManifest->build()
+#6 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(89): Illuminate\Foundation\PackageManifest->getManifest()
+#7 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(78): Illuminate\Foundation\PackageManifest->config('aliases')
+#8 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterFacades.php(26): Illuminate\Foundation\PackageManifest->aliases()
+#9 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(230): Illuminate\Foundation\Bootstrap\RegisterFacades->bootstrap(Object(Illuminate\Foundation\Application))
+#10 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(310): Illuminate\Foundation\Application->bootstrapWith(Array)
+#11 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(127): Illuminate\Foundation\Console\Kernel->bootstrap()
+#12 /home3/wmtoolp6/devbackend.kgaelectronics.com/artisan(37): Illuminate\Foundation\Console\Kernel->handle(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#13 {main} in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php on line 11
+[09-Dec-2022 13:56:47 UTC] PHP Warning:  Uncaught ErrorException: require_once(/home3/wmtoolp6/devbackend.kgaelectronics.com/datababse/migrations/2022_12_09_134029_update_sales_order_table.php): failed to open stream: No such file or directory in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php:111
+Stack trace:
+#0 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(111): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(2, 'require_once(/h...', '/home3/wmtoolp6...', 111, Array)
+#1 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(111): require_once()
+#2 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(482): Illuminate\Filesystem\Filesystem->requireOnce('/home3/wmtoolp6...')
+#3 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrat in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php on line 111
+[09-Dec-2022 13:56:47 UTC] PHP Fatal error:  Illuminate\Filesystem\Filesystem::requireOnce(): Failed opening required '/home3/wmtoolp6/devbackend.kgaelectronics.com/datababse/migrations/2022_12_09_134029_update_sales_order_table.php' (include_path='.:/opt/cpanel/ea-php74/root/usr/share/pear') in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php on line 111
+[09-Dec-2022 13:57:24 UTC] PHP Fatal error:  During inheritance of ArrayAccess: Uncaught ErrorException: Return type of Illuminate\Support\Collection::offsetExists($key) should either be compatible with ArrayAccess::offsetExists(mixed $offset): bool, or the #[\ReturnTypeWillChange] attribute should be used to temporarily suppress the notice in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php:1349
+Stack trace:
+#0 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php(11): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(8192, 'Return type of ...', '/home3/wmtoolp6...', 1349)
+#1 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/composer/ClassLoader.php(571): include('/home3/wmtoolp6...')
+#2 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home3/wmtoolp6...')
+#3 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/helpers.php(110): Composer\Autoload\ClassLoader->loadClass('Illuminate\\Supp...')
+#4 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(130): collect(Array)
+#5 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(106): Illuminate\Foundation\PackageManifest->build()
+#6 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(89): Illuminate\Foundation\PackageManifest->getManifest()
+#7 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(78): Illuminate\Foundation\PackageManifest->config('aliases')
+#8 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterFacades.php(26): Illuminate\Foundation\PackageManifest->aliases()
+#9 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(230): Illuminate\Foundation\Bootstrap\RegisterFacades->bootstrap(Object(Illuminate\Foundation\Application))
+#10 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(310): Illuminate\Foundation\Application->bootstrapWith(Array)
+#11 /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(127): Illuminate\Foundation\Console\Kernel->bootstrap()
+#12 /home3/wmtoolp6/devbackend.kgaelectronics.com/artisan(37): Illuminate\Foundation\Console\Kernel->handle(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#13 {main} in /home3/wmtoolp6/devbackend.kgaelectronics.com/vendor/laravel/framework/src/Illuminate/Support/Collection.php on line 11
