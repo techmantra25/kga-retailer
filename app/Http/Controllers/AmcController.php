@@ -454,26 +454,37 @@ class AmcController extends Controller
     ///HO SALE
 
     public function ho_sale(Request $request){
+
+        // -----------------------------
+        // 1. READ REQUEST INPUTS
+        // -----------------------------
         $searchBy = $request->input('search_by', 'default');
-        $search = !empty($request->search)?$request->search:'';
+        $search = !empty($request->search) ? $request->search : '';
         $remaining_days = $request->input('remaining_days', 'hot_leads');
-        $paginate = !empty($request->paginate)?$request->paginate:25;
-        $amc_subscription = !empty($request->amc_subscription)?$request->amc_subscription:'unsubscription';
+        $paginate = !empty($request->paginate) ? $request->paginate : 25;
+        $amc_subscription = !empty($request->amc_subscription) ? $request->amc_subscription : 'unsubscription';
         $calls_filter = !empty($request->calls_filter) ? $request->calls_filter : "";
         $page = $request->page;
         $from_date = $request->from_date;
         $to_date = $request->to_date;
-        
-        $today=date('Y-m-d');
 
-        if($amc_subscription==='subscription'){
+        $today = date('Y-m-d'); // Current date
+
+
+        // -----------------------------
+        // 2. HANDLE AMC REDIRECTIONS
+        // -----------------------------
+        if($amc_subscription === 'subscription'){
             return redirect()->route('amc.subscription-amc-data');
-        }elseif($amc_subscription==='pending_request'){
+        } elseif($amc_subscription === 'pending_request'){
             return redirect()->route('amc.pending-request');
-        }elseif($amc_subscription === 'pending_payment'){
+        } elseif($amc_subscription === 'pending_payment'){
             return redirect()->route('amc.pending-payment');
         }
 
+        // -----------------------------
+        // 3. VALIDATE PAGE & PAGINATION
+        // -----------------------------
         if(!is_numeric($page)){
             $page = 1;
         }
@@ -482,64 +493,107 @@ class AmcController extends Controller
         }
 
 
-        // Fetch all serials from the AmcSubscription table
-        $AmcSubscriptionSerials = AmcSubscription::groupBy('serial')->whereNotNull('serial')->pluck('serial')->toArray();
+        // -----------------------------
+        // 4. FETCH ALL AMC SUBSCRIBED SERIAL NUMBERS
+        // -----------------------------
+        $AmcSubscriptionSerials = AmcSubscription::groupBy('serial')
+            ->whereNotNull('serial')
+            ->pluck('serial')
+            ->toArray();
 
+
+        // -----------------------------
+        // 5. PREPARE BASE QUERY BASED ON AMC FILTER
+        // -----------------------------
         if($amc_subscription === 'refused') {
-            // Get only refused call history entries
+            // Only show data that has call history type = 2 (refused)
             $data = KgaSalesData::whereHas('CallHistoryData', function($query) {
                 $query->where('type', 2);
             })->select('*');
+
             $totalResult = KgaSalesData::whereHas('CallHistoryData', function($query) {
                 $query->where('type', 2);
             })->select('*');
-        }
-        elseif($amc_subscription == 'unsubscription'){
-            $data = KgaSalesData::whereNotIn('serial',$AmcSubscriptionSerials)->select('*');
-            $totalResult =KgaSalesData::whereNotIn('serial',$AmcSubscriptionSerials)->select('*');
-        }else{
-            $data = KgaSalesData::with('AmcSubscription')->whereIn('serial',$AmcSubscriptionSerials)->select('*');
-            $totalResult =KgaSalesData::whereNotIn('serial',$AmcSubscriptionSerials)->select('*');
+
+        } elseif($amc_subscription == 'unsubscription') {
+
+            // Show data NOT having AMC subscription
+            $data = KgaSalesData::whereNotIn('serial', $AmcSubscriptionSerials)->select('*');
+            $totalResult = KgaSalesData::whereNotIn('serial', $AmcSubscriptionSerials)->select('*');
+
+        } else {
+        
+            // Show data WITH AMC subscription
+            $data = KgaSalesData::with('AmcSubscription')->whereIn('serial', $AmcSubscriptionSerials)->select('*');
+            $totalResult = KgaSalesData::whereNotIn('serial', $AmcSubscriptionSerials)->select('*');
         }
 
 
-        // Filter by category where amc_applicable = 1
+        // -----------------------------
+        // 6. FILTER ONLY PRODUCTS WITH amc_applicable = 1
+        // -----------------------------
         $data = $data->whereHas('product', function ($q) {
             $q->whereHas('category', function ($query) {
                 $query->where('amc_applicable', 1);
             });
         });
-
         $totalResult = $totalResult->whereHas('product', function ($q) {
             $q->whereHas('category', function ($query) {
                 $query->where('amc_applicable', 1);
             });
         });
-        //call filter
+
+
+        // -----------------------------
+        // 7. CALLS FILTER
+        // -----------------------------
         if ($calls_filter === 'today_due') {
+            // dd('today_due filter not implemented yet');
+            // Warranty expires TODAY or reminder date is TODAY
             $data = $data->where(function($query) use ($today) {
+
+                // warranty end = today
                 $query->whereHas('productWarranty', function ($q) use ($today) {
                     $q->whereRaw("DATE_ADD(bill_date, INTERVAL warranty_period MONTH) = ?", [$today]);
                 })
+
+                // OR reminder = today
                 ->orWhereHas('CallHistoryData', function($q) use ($today) {
                     $q->whereDate('reminder_date', $today);
                 });
             });
-        }elseif ($calls_filter === 'old_pending') {
+
+        } elseif ($calls_filter === 'old_pending') {
+            //  dd('call_back filter not implemented yet');
+            // Warranty expired OR reminder date past
             $data = $data->where(function($query) use ($today) {
+
+                // warranty < today
                 $query->whereHas('productWarranty', function ($q) use ($today) {
-                $q->whereRaw("DATE_ADD(bill_date, INTERVAL warranty_period MONTH) < ? ", [$today]);
-            })->orWhereHas('CallHistoryData', function($q) use ($today) {
-                        $q->whereDate('reminder_date', '<', $today);
-                    });
+                    $q->whereRaw("DATE_ADD(bill_date, INTERVAL warranty_period MONTH) < ?", [$today]);
+                })
+
+                // OR reminder < today
+                ->orWhereHas('CallHistoryData', function($q) use ($today) {
+                    $q->whereDate('reminder_date', '<', $today);
+                });
             });
-		}elseif($calls_filter === 'call_back') {
-		    $data = $data->whereHas('CallHistoryData' , function($query){
-			   $query->where('type',1);
-			});
-		}  
-        
-		if (!empty($from_date) || !empty($to_date)) {
+
+        } elseif ($calls_filter === 'call_back') {
+            // dd('call_back filter not implemented yet');
+            // Only show call history type = 1
+            $data = $data->whereHas('CallHistoryData', function($query){
+                $query->where('type', 1);
+            });
+        }
+
+
+        // -----------------------------
+        // 8. DATE FILTER
+        // -----------------------------
+        if (!empty($from_date) || !empty($to_date)) {
+
+            // Apply date filter on bill_date
             $data->where(function ($query) use ($from_date, $to_date) {
                 if (!empty($from_date)) {
                     $query->where('bill_date', '>=', $from_date);
@@ -548,7 +602,7 @@ class AmcController extends Controller
                     $query->where('bill_date', '<=', $to_date);
                 }
             });
-        
+
             $totalResult->where(function ($query) use ($from_date, $to_date) {
                 if (!empty($from_date)) {
                     $query->where('bill_date', '>=', $from_date);
@@ -558,123 +612,169 @@ class AmcController extends Controller
                 }
             });
         }
-		
-		
-		if ($remaining_days) {
-		    if ($remaining_days === 'hot_leads') {
-                // Show warranties expiring ±10 days from today
-                
+
+
+        // -----------------------------
+        // 9. REMAINING DAYS FILTER
+        // -----------------------------
+        if ($remaining_days) {
+
+            if ($remaining_days === 'hot_leads') {
+                // Warranty ending within ±10 days of today
                 $data = $data->whereHas('productWarranty', function ($query) use ($today) {
-				    $query->whereRaw(" DATE_ADD(bill_date, INTERVAL warranty_period MONTH) BETWEEN DATE_SUB(?, INTERVAL 10 DAY) AND DATE_ADD(?, INTERVAL 10 DAY) ", [$today, $today]);
-			    });
-				
-                // dd($data->limit(10)->get(),$today);
-		    } else if($remaining_days === 'above_60'){
-				 $data = $data->whereHas('productWarranty', function ($query) use ($today) {
-				 	
-				    $query->whereRaw(" DATEDIFF(DATE_ADD(bill_date, INTERVAL warranty_period MONTH), ?) < 60 ", [$today]);
-				});
-			}
-			else if($remaining_days === 'below_60'){
-				 $data = $data->whereHas('productWarranty', function ($query) use ($today) {
-				 	
-				    $query->whereRaw(" DATEDIFF(DATE_ADD(bill_date, INTERVAL warranty_period MONTH), ?) < -60 ", [$today]);
-				});
-			}
-			else {
+                    $query->whereRaw("
+                        DATE_ADD(bill_date, INTERVAL warranty_period MONTH)
+                        BETWEEN DATE_SUB(?, INTERVAL 10 DAY)
+                        AND DATE_ADD(?, INTERVAL 10 DAY)
+                    ", [$today, $today]);
+                });
+            } elseif ($remaining_days === 'above_60') {
+
+                // Warranty ends within next 60 days
+                $data = $data->whereHas('productWarranty', function ($query) use ($today) {
+                    $query->whereRaw("DATEDIFF(DATE_ADD(bill_date, INTERVAL warranty_period MONTH), ?) < 60", [$today]);
+                });
+
+            } elseif ($remaining_days === 'below_60') {
+                // Warranty expired beyond 60 days
+                $data = $data->whereHas('productWarranty', function ($query) use ($today) {
+                    $query->whereRaw("DATEDIFF(DATE_ADD(bill_date, INTERVAL warranty_period MONTH), ?) < -60", [$today]);
+                });
+
+            } else {
+
+                // Custom day filter
                 $remaining_days = (int) $remaining_days;
+
                 if ($remaining_days > 0) {
+
+                    // Warranty ending within next X days
                     $data = $data->whereHas('productWarranty', function ($query) use ($today, $remaining_days) {
-                        $query->whereRaw(" DATE_SUB(DATE_ADD(bill_date, INTERVAL warranty_period MONTH), INTERVAL 1 DAY) BETWEEN ? AND DATE_ADD(?, INTERVAL ? DAY) ", [$today, $today, $remaining_days]);
+                        $query->whereRaw("
+                            DATE_SUB(DATE_ADD(bill_date, INTERVAL warranty_period MONTH), INTERVAL 1 DAY)
+                            BETWEEN ? AND DATE_ADD(?, INTERVAL ? DAY)
+                        ", [$today, $today, $remaining_days]);
                     });
+
                 } elseif ($remaining_days < 0) {
+
+                    // Warranty expired within last X days
                     $absDays = abs($remaining_days);
+
                     $data = $data->whereHas('productWarranty', function ($query) use ($today, $absDays) {
-                        $query->whereRaw(" DATE_SUB(DATE_ADD(bill_date, INTERVAL warranty_period MONTH), INTERVAL 1 DAY) BETWEEN DATE_SUB(?, INTERVAL ? DAY) AND ? ", [$today, $absDays, $today]);
+                        $query->whereRaw("
+                            DATE_SUB(DATE_ADD(bill_date, INTERVAL warranty_period MONTH), INTERVAL 1 DAY)
+                            BETWEEN DATE_SUB(?, INTERVAL ? DAY)
+                            AND ?
+                        ", [$today, $absDays, $today]);
                     });
                 }
-		    }
-	    }
+            }
+        }
 
-        if(!empty($search)){
-            $data = $data->where(function($query) use ($search,$searchBy){
-				if ($searchBy === 'id') {
-					// Exact match for ID search
-					$query->where('id', $search);
-				}else{
-					$query->where('item', 'LIKE','%'.$search.'%')
-					->orWhere('id', 'LIKE','%'.$search.'%')
-					->orWhere('bill_no', 'LIKE','%'.$search.'%')
-					->orWhere('customer_name', 'LIKE','%'.$search.'%')
-					->orWhere('class_name', 'LIKE','%'.$search.'%')
-					->orWhere('mobile', 'LIKE','%'.$search.'%')
-					// ->orWhere('email', 'LIKE','%'.$search.'%')
-					->orWhere('phone', 'LIKE','%'.$search.'%')
-					->orWhere('barcode', 'LIKE','%'.$search.'%')
-					->orWhere('serial', 'LIKE','%'.$search.'%')
-					->orWhere('branch', 'LIKE','%'.$search.'%')
-					->orWhere('pincode', 'LIKE','%'.$search.'%')
-					->orWhere('address', 'LIKE','%'.$search.'%')
+
+        // -----------------------------
+        // 10. SEARCH FILTER
+        // -----------------------------
+        if(!empty($search)) {
+
+            $data = $data->where(function($query) use ($search, $searchBy) {
+
+                if ($searchBy === 'id') {
+
+                    // Exact ID match
+                    $query->where('id', $search);
+
+                } else {
+
+                    // Keyword search across many fields
+                    $query->where('item', 'LIKE', "%{$search}%")
+                    ->orWhere('id', 'LIKE', "%{$search}%")
+                    ->orWhere('bill_no', 'LIKE', "%{$search}%")
+                    ->orWhere('customer_name', 'LIKE', "%{$search}%")
+                    ->orWhere('class_name', 'LIKE', "%{$search}%")
+                    ->orWhere('mobile', 'LIKE', "%{$search}%")
+                    ->orWhere('phone', 'LIKE', "%{$search}%")
+                    ->orWhere('barcode', 'LIKE', "%{$search}%")
+                    ->orWhere('serial', 'LIKE', "%{$search}%")
+                    ->orWhere('branch', 'LIKE', "%{$search}%")
+                    ->orWhere('pincode', 'LIKE', "%{$search}%")
+                    ->orWhere('address', 'LIKE', "%{$search}%")
                     ->orWhereHas('product', function ($q) use ($search) {
-                    $q->whereHas('category', function ($query) use ($search) {
-                        $query->where('name', 'LIKE', '%' . $search . '%');
+                        $q->whereHas('category', function ($query) use ($search) {
+                            $query->where('name', 'LIKE', "%{$search}%");
+                        });
                     });
-                });
-				}
-                
+                }
             });
-            $totalResult = $totalResult->where(function($query) use ($search,$searchBy){
-				if ($searchBy === 'id') {
-					// Exact match for ID search
-					$query->where('id', $search);
-				}else{
-				    $query->where('item', 'LIKE','%'.$search.'%')
-					->orWhere('id', 'LIKE','%'.$search.'%')
-					->orWhere('bill_no', 'LIKE','%'.$search.'%')
-					->orWhere('customer_name', 'LIKE','%'.$search.'%')
-					->orWhere('mobile', 'LIKE','%'.$search.'%')
-					// ->orWhere('email', 'LIKE','%'.$search.'%')
-					->orWhere('phone', 'LIKE','%'.$search.'%')
-					->orWhere('barcode', 'LIKE','%'.$search.'%')
-					->orWhere('serial', 'LIKE','%'.$search.'%')
-					->orWhere('branch', 'LIKE','%'.$search.'%')
-					->orWhere('pincode', 'LIKE','%'.$search.'%')
-					->orWhere('address', 'LIKE','%'.$search.'%');
-				}
-                
+
+            $totalResult = $totalResult->where(function($query) use ($search, $searchBy) {
+                if ($searchBy === 'id') {
+                    $query->where('id', $search);
+                } else {
+                    $query->where('item', 'LIKE', "%{$search}%")
+                    ->orWhere('id', 'LIKE', "%{$search}%")
+                    ->orWhere('bill_no', 'LIKE', "%{$search}%")
+                    ->orWhere('customer_name', 'LIKE', "%{$search}%")
+                    ->orWhere('mobile', 'LIKE', "%{$search}%")
+                    ->orWhere('phone', 'LIKE', "%{$search}%")
+                    ->orWhere('barcode', 'LIKE', "%{$search}%")
+                    ->orWhere('serial', 'LIKE', "%{$search}%")
+                    ->orWhere('branch', 'LIKE', "%{$search}%")
+                    ->orWhere('pincode', 'LIKE', "%{$search}%")
+                    ->orWhere('address', 'LIKE', "%{$search}%");
+                }
             });
         }
-       
-
-		   $data = $data->with([
-				'CallHistoryData',
-			   	'product',
-				'Before_Amc_Subscription' => function($q) {
-					$q->with(['productAmc' => function($q) {
-						$q->with('AmcPlanData');
-					}]);
-				}
-			])->orderBy('id','DESC')->paginate($paginate);
-       
 
 
-        // dd($data);
+        // -----------------------------
+        // 11. LOAD RELATIONS & PAGINATE
+        // -----------------------------
+        $data = $data->with([
+            'CallHistoryData',
+            'product',
+            'Before_Amc_Subscription' => function($q) {
+                $q->with(['productAmc' => function($q) {
+                    $q->with('AmcPlanData');
+                }]);
+            }
+        ])
+        ->orderBy('id', 'DESC')
+        ->paginate($paginate);
+
+
+        // -----------------------------
+        // 12. GET TOTAL COUNT BEFORE PAGINATION
+        // -----------------------------
         $totalResult = $totalResult->count();
 
+
+        // -----------------------------
+        // 13. APPEND URL PARAMETERS FOR PAGINATION
+        // -----------------------------
         $data = $data->appends([
-            'page'=>$page,
-            'paginate'=>$request->paginate,
-            'search'=>$search,
-           // 'date'=>$date,
-			'from_date' => $from_date,
+            'page' => $page,
+            'paginate' => $request->paginate,
+            'search' => $search,
+            'from_date' => $from_date,
             'to_date' => $to_date,
-            'amc_subscription'=>$amc_subscription,
-			'remaining_days' => $remaining_days,
-			'calls_filter' => $calls_filter
+            'amc_subscription' => $amc_subscription,
+            'remaining_days' => $remaining_days,
+            'calls_filter' => $calls_filter
         ]);
-		
-        return view('amc.ho-sale', compact('data','totalResult','page','paginate','search','from_date','to_date','remaining_days','amc_subscription'));
+
+
+        // -----------------------------
+        // 14. RETURN VIEW
+        // -----------------------------
+        return view('amc.ho-sale', compact(
+            'data','totalResult','page','paginate',
+            'search','from_date','to_date',
+            'remaining_days','amc_subscription'
+        ));
     }
+
 	
 	
 	public function pending_payment(Request $request){
@@ -857,7 +957,6 @@ class AmcController extends Controller
 
         }
         public function prepare_for_purchase_amc_plan( Request $request,$kga_sale_id,$idStr){
-            // dd($request->all());
             $auth_id = Auth::User()->id;
             $id = Crypt::decrypt($idStr);
             $product_amc_data = ProductAmc::with('AmcPlanData')->find($id);
@@ -923,7 +1022,6 @@ class AmcController extends Controller
                     "x-client-secret: ".env('CASHFREE_API_SECRET')
                 );
                 $return_url = route('amc_payment_success');
-               
                 $data = json_encode([
                      'order_id' =>  'order_'.time().'_'.rand(11111,99999),
                      'order_amount' => $purchase_amount,
@@ -981,93 +1079,14 @@ class AmcController extends Controller
                 $record = DB::table('amc_payment_links')->where('kga_sales_id', $kga_sales_id)->where('amc_unique_number',$amc_unique_number)->first();
                 if($record){
                     DB::commit();
-                   
-                    $apiDomainUrl   = config('whatsapp.api_domain_url');
-                    $channelNumber  = config('whatsapp.channel_number');
-                    $apiKey         = config('whatsapp.api_key');
-                    $templateName   = 'otp4';
-                    $languageCode   = config('whatsapp.language_code'); // e.g., en_US, hi_IN, etc.
 
-                    $recipientPhone = '91'.$mobile; // Example phone number
+                    // Dynamic template values
                     $url_link = route('AMC_payment_link', [
                         'd'          => $kga_sales_id,
                         'amc_serial' => $amc_unique_number,
                     ]);
-
-                    $amount = "₹".number_format($purchase_amount, 2); 
-                    $data = [
-                        "MessagingProduct" => "whatsapp",
-                        "RecipientType"    => "individual",
-                        "to"               => $recipientPhone,
-                        "Type"             => "template",
-                        "Template" => [
-                            "Name"     => $templateName,
-                            "Language" => [
-                                "Code" => $languageCode
-                            ],
-                            "components" => [
-                                [
-                                    "type"       => "body",
-                                    "parameters" => [
-                                        [
-                                            "type" => "text",
-                                            "text" => $amount // This is {{1}}
-                                        ],
-                                        [
-                                            "type" => "text",
-                                            "text" => $url_link // This is {{2}}
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ];
-
-                    $ch = curl_init();
-                    curl_setopt_array($ch, [
-                        CURLOPT_URL            => "$apiDomainUrl/api/v1.0/messages/send-template/$channelNumber",
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_POST           => true,
-                        CURLOPT_HTTPHEADER     => [
-                            "Authorization: Bearer $apiKey",
-                            "Content-Type: application/json"
-                        ],
-                        CURLOPT_POSTFIELDS     => json_encode($data),
-                    ]);
-                    
-                    $response = curl_exec($ch);
-                    // if (curl_errno($ch)) {
-                    //     echo "cURL Error: " . curl_error($ch);
-                    // } else {
-                    //     echo "Response: " . $response;
-                    // }
-
-                    curl_close($ch);
-                    // For SMS
-                    // $query_calling_number = "6291117317";
-                    // $sms_entity_id = getSingleAttributeTable('settings','id',1,'sms_entity_id');
-                    // $sms_template_id = "1707172234124956959";
-                    
-                    // $myMessage = urlencode('We are pleased to inform you that your product repair charge is now ready for payment. Kindly use the following link to complete the transaction: '.$url_link.' .AMMR TECHNOLOGY LLP');
-
-                    // $sms_url = 'https://sms.bluwaves.in/sendsms/bulk.php?username=ammrllp&password=123456789&type=TEXT&sender=AMMRTL&mobile='.$mobile.'&message='.$myMessage.'&entityId='.$sms_entity_id.'&templateId='.$sms_template_id;
-                    // // // echo $myMessage; die;
-            
-                    // $curl = curl_init();
-            
-                    // curl_setopt_array($curl, array(
-                    // CURLOPT_URL => $sms_url,
-                    // CURLOPT_RETURNTRANSFER => true,
-                    // CURLOPT_ENCODING => '',
-                    // CURLOPT_MAXREDIRS => 10,
-                    // CURLOPT_TIMEOUT => 0,
-                    // CURLOPT_FOLLOWLOCATION => true,
-                    // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    // CURLOPT_CUSTOMREQUEST => 'GET',
-                    // ));
-
-                    // $response = curl_exec($curl);
-                    // curl_close($curl);
+                    $link_params = "?d=$kga_sales_id&amc_serial=$amc_unique_number";
+                    sendAMCPaymentLink($mobile, $purchase_amount, $link_params, $customer_name);
 
                     return redirect()->back()->with('message','Payment link send to this phone number, wating for payment!');
                 }else{
@@ -1174,95 +1193,12 @@ class AmcController extends Controller
                 $record = DB::table('amc_payment_links')->where('kga_sales_id', $kga_sales_id)->where('amc_unique_number',$amc_unique_number)->first();
                 if($record){
                     DB::commit();
-                    $apiDomainUrl   = config('whatsapp.api_domain_url');
-                    $channelNumber  = config('whatsapp.channel_number');
-                    $apiKey         = config('whatsapp.api_key');
-                    $templateName   = 'otp4';
-                    $languageCode   = config('whatsapp.language_code'); // e.g., en_US, hi_IN, etc.
-
-                    $recipientPhone = '91'.$mobile; // Example phone number
                     $url_link = route('AMC_payment_link', [
                         'd'          => $kga_sales_id,
                         'amc_serial' => $amc_unique_number,
                     ]);
-
-                    $amount = "₹".$purchase_amount; 
-                    $data = [
-                        "MessagingProduct" => "whatsapp",
-                        "RecipientType"    => "individual",
-                        "to"               => $recipientPhone,
-                        "Type"             => "template",
-                        "Template" => [
-                            "Name"     => $templateName,
-                            "Language" => [
-                                "Code" => $languageCode
-                            ],
-                            "components" => [
-                                [
-                                    "type"       => "body",
-                                    "parameters" => [
-                                        [
-                                            "type" => "text",
-                                            "text" => $amount // This is {{1}}
-                                        ],
-                                        [
-                                            "type" => "text",
-                                            "text" => $url_link // This is {{2}}
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ];
-
-                    $ch = curl_init();
-                    curl_setopt_array($ch, [
-                        CURLOPT_URL            => "$apiDomainUrl/api/v1.0/messages/send-template/$channelNumber",
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_POST           => true,
-                        CURLOPT_HTTPHEADER     => [
-                            "Authorization: Bearer $apiKey",
-                            "Content-Type: application/json"
-                        ],
-                        CURLOPT_POSTFIELDS     => json_encode($data),
-                    ]);
-                    
-                    $response = curl_exec($ch);
-                    // if (curl_errno($ch)) {
-                    //     echo "cURL Error: " . curl_error($ch);
-                    // } else {
-                    //     echo "Response: " . $response;
-                    // }
-
-                    curl_close($ch); 
-                    
-                    // $query_calling_number = "6291117317";
-                
-                    // $sms_entity_id = getSingleAttributeTable('settings','id',1,'sms_entity_id');
-                    // $sms_template_id = "1707172234124956959";
-                    
-                    // $myMessage = urlencode('We are pleased to inform you that your product repair charge is now ready for payment. Kindly use the following link to complete the transaction: '.$url_link.' .AMMR TECHNOLOGY LLP');
-
-                    // $sms_url = 'https://sms.bluwaves.in/sendsms/bulk.php?username=ammrllp&password=123456789&type=TEXT&sender=AMMRTL&mobile='.$mobile.'&message='.$myMessage.'&entityId='.$sms_entity_id.'&templateId='.$sms_template_id;
-                
-                    // // // echo $myMessage; die;
-            
-                    // $curl = curl_init();
-            
-                    // curl_setopt_array($curl, array(
-                    // CURLOPT_URL => $sms_url,
-                    // CURLOPT_RETURNTRANSFER => true,
-                    // CURLOPT_ENCODING => '',
-                    // CURLOPT_MAXREDIRS => 10,
-                    // CURLOPT_TIMEOUT => 0,
-                    // CURLOPT_FOLLOWLOCATION => true,
-                    // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    // CURLOPT_CUSTOMREQUEST => 'GET',
-                    // ));
-
-                    // $response = curl_exec($curl);
-                    // curl_close($curl);
-                    
+                    $link_params = "?d=$kga_sales_id&amc_serial=$amc_unique_number";
+                    sendAMCPaymentLink($mobile, $purchase_amount, $link_params, $customer_name);
                     return redirect()->back()->with('message','Payment link send to this phone number, wating for payment!');
                 }else{
                     throw new Exception('Record not found.');;

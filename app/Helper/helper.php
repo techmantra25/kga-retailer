@@ -933,3 +933,86 @@ function amountInWords(float $number)
     $paise = ($decimal > 0) ? "." . ($words[$decimal / 10] . " " . $words[$decimal % 10]) . ' Paise' : '';
     return ($Rupees ? $Rupees . 'Rupees ' : '') . $paise;
 }
+function sendAMCPaymentLink($mobile, $amount, $UrlParams, $customer_name = '')
+{
+    $apiDomainUrl  = config('whatsapp.api_domain_url');
+    $apiVersion    = config('whatsapp.api_version');
+    $channelNumber = config('whatsapp.channel_number');
+    $apiKey        = config('whatsapp.api_key');
+
+
+    // Format mobile
+    $recipientPhone = "91" . $mobile;
+
+    // Format amount
+    $amountText = number_format($amount, 2);
+
+    /**
+     *  WhatsApp Template: send_amc_payment_link
+     *  {{1}} = Amount
+     *  {{2}} = Payment URL (display inside message body)
+     *  Button → URL (parameter: {{url}})
+     */
+
+    $data = [
+        "messaging_product" => "whatsapp",
+        "recipient_type"    => "individual",
+        "to"                => $recipientPhone,
+        "type"              => "template",
+        "template" => [
+            "name" => "send_amc_payment_link",
+            "language" => ["code" => "en"],
+            "components" => [
+                [
+                    "type" => "body",
+                    "parameters" => [
+                        ["type" => "text", "text" => $customer_name],    // {{1}}
+                        ["type" => "text", "text" => $amountText]     // {{2}}
+                    ]
+                ],
+                [
+                    "type" => "button",
+                    "sub_type" => "url",
+                    "index" => "0",
+                    "parameters" => [
+                        ["type" => "text", "text" => $UrlParams]     // {{url}}
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    $apiUrl = "$apiDomainUrl/$apiVersion/$channelNumber/messages";
+
+    // CURL CALL
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $apiUrl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer $apiKey",
+            "Content-Type: application/json"
+        ],
+        CURLOPT_POSTFIELDS => json_encode($data),
+    ]);
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    // Log to DB
+    DB::table('whatsapp_send_responses')->insert([
+        'mobile'        => $mobile,
+        'template_name' => 'send_amc_payment_link',
+        'request_json'  => json_encode($data),
+        'response_json' => $response,
+        'error_message' => $error,
+        'created_at'    => now(),
+        'updated_at'    => now(),
+    ]);
+
+    return [
+        "response" => $response,
+        "error"    => $error
+    ];
+}

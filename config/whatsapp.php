@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'api_domain_url' => 'https://cloudapi.wbbox.in',   // Replace with your API domain
-    'channel_number' => '918910551620',   // Replace with your WhatsApp channel number
-    'api_key'        => 'VffDZ9TxL025zQlBiq7Wew',          // Replace with your API key
+    'api_domain_url' => 'https://portal.bluewavesmedia.in',   // Replace with your API domain
+    'api_version' => 'v23.0',
+    'channel_number' => '810403812165770',   // Replace with your WhatsApp channel number
+    'api_key'        => '5f8b3019-3ee5-45fb-a5ae-b45f2a73d62d',          // Replace with your API key
     'language_code'  => 'en_US',                // Default language code
-    'template_name'  => 'template-name',        // Default template name
 ];
