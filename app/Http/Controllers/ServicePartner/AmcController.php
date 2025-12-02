@@ -223,92 +223,12 @@ class AmcController extends Controller
             if($record){
                 DB::commit();
                 
-                $apiDomainUrl   = config('whatsapp.api_domain_url');
-                $channelNumber  = config('whatsapp.channel_number');
-                $apiKey         = config('whatsapp.api_key');
-                $templateName   = 'otp4';
-                $languageCode   = config('whatsapp.language_code'); // e.g., en_US, hi_IN, etc.
-
-                $recipientPhone = '91'.$mobile; // Example phone number
                 $url_link = route('AMC_payment_link', [
                     'd'          => $kga_sales_id,
                     'amc_serial' => $amc_unique_number,
                 ]);
-
-                $amount = "₹".number_format($purchase_amount, 2); 
-                $data = [
-                    "MessagingProduct" => "whatsapp",
-                    "RecipientType"    => "individual",
-                    "to"               => $recipientPhone,
-                    "Type"             => "template",
-                    "Template" => [
-                        "Name"     => $templateName,
-                        "Language" => [
-                            "Code" => $languageCode
-                        ],
-                        "components" => [
-                            [
-                                "type"       => "body",
-                                "parameters" => [
-                                    [
-                                        "type" => "text",
-                                        "text" => $amount // This is {{1}}
-                                    ],
-                                    [
-                                        "type" => "text",
-                                        "text" => $url_link // This is {{2}}
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ];
-                $ch = curl_init();
-                curl_setopt_array($ch, [
-                    CURLOPT_URL            => "$apiDomainUrl/api/v1.0/messages/send-template/$channelNumber",
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_POST           => true,
-                    CURLOPT_HTTPHEADER     => [
-                        "Authorization: Bearer $apiKey",
-                        "Content-Type: application/json"
-                    ],
-                    CURLOPT_POSTFIELDS     => json_encode($data),
-                ]);
-                
-                $response = curl_exec($ch);
-                // if (curl_errno($ch)) {
-                //     echo "cURL Error: " . curl_error($ch);
-                // } else {
-                //     echo "Response: " . $response;
-                // }
-
-                curl_close($ch);
-                // $query_calling_number = "6291117317";
-            
-                // $sms_entity_id = getSingleAttributeTable('settings','id',1,'sms_entity_id');
-                // $sms_template_id = "1707172234124956959";
-                
-                // $myMessage = urlencode('We are pleased to inform you that your product repair charge is now ready for payment. Kindly use the following link to complete the transaction: '.$url_link.' .AMMR TECHNOLOGY LLP');
-
-                // $sms_url = 'https://sms.bluwaves.in/sendsms/bulk.php?username=ammrllp&password=123456789&type=TEXT&sender=AMMRTL&mobile='.$mobile.'&message='.$myMessage.'&entityId='.$sms_entity_id.'&templateId='.$sms_template_id;
-             
-                // // // echo $myMessage; die;
-        
-                // $curl = curl_init();
-        
-                // curl_setopt_array($curl, array(
-                // CURLOPT_URL => $sms_url,
-                // CURLOPT_RETURNTRANSFER => true,
-                // CURLOPT_ENCODING => '',
-                // CURLOPT_MAXREDIRS => 10,
-                // CURLOPT_TIMEOUT => 0,
-                // CURLOPT_FOLLOWLOCATION => true,
-                // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                // CURLOPT_CUSTOMREQUEST => 'GET',
-                // ));
-
-                // $response = curl_exec($curl);
-                // curl_close($curl);
+                $link_params = "?d=$kga_sales_id&amc_serial=$amc_unique_number";
+                sendAMCPaymentLink($mobile, $purchase_amount, $link_params, $customer_name);
                 
                 return redirect()->back()->with('message','Payment link send to this phone number, wating for payment!');
             }else{
@@ -481,97 +401,17 @@ class AmcController extends Controller
             $record = DB::table('amc_payment_links')->where('kga_sales_id', $kga_sales_id)->where('amc_unique_number',$amc_unique_number)->first();
             if($record){
                 DB::commit();
-                $apiDomainUrl   = config('whatsapp.api_domain_url');
-                $channelNumber  = config('whatsapp.channel_number');
-                $apiKey         = config('whatsapp.api_key');
-                $templateName   = 'otp4';
-                $languageCode   = config('whatsapp.language_code'); // e.g., en_US, hi_IN, etc.
-
-                $recipientPhone = '91'.$mobile; // Example phone number
+                
                 $url_link = route('AMC_payment_link', [
                     'd'          => $kga_sales_id,
                     'amc_serial' => $amc_unique_number,
                 ]);
-
-                $amount = "₹".number_format($purchase_amount, 2); 
-                $data = [
-                    "MessagingProduct" => "whatsapp",
-                    "RecipientType"    => "individual",
-                    "to"               => $recipientPhone,
-                    "Type"             => "template",
-                    "Template" => [
-                        "Name"     => $templateName,
-                        "Language" => [
-                            "Code" => $languageCode
-                        ],
-                        "components" => [
-                            [
-                                "type"       => "body",
-                                "parameters" => [
-                                    [
-                                        "type" => "text",
-                                        "text" => $amount // This is {{1}}
-                                    ],
-                                    [
-                                        "type" => "text",
-                                        "text" => $url_link // This is {{2}}
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ];
-                $ch = curl_init();
-                curl_setopt_array($ch, [
-                    CURLOPT_URL            => "$apiDomainUrl/api/v1.0/messages/send-template/$channelNumber",
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_POST           => true,
-                    CURLOPT_HTTPHEADER     => [
-                        "Authorization: Bearer $apiKey",
-                        "Content-Type: application/json"
-                    ],
-                    CURLOPT_POSTFIELDS     => json_encode($data),
-                ]);
-                
-                $response = curl_exec($ch);
-                // if (curl_errno($ch)) {
-                //     echo "cURL Error: " . curl_error($ch);
-                // } else {
-                //     echo "Response: " . $response;
-                // }
-
-                curl_close($ch);
-                // $url_link = route('AMC_payment_link',['d'=>$kga_sales_id, 'amc_serial'=>$amc_unique_number]);  
-                // $query_calling_number = "6291117317";
-            
-                // $sms_entity_id = getSingleAttributeTable('settings','id',1,'sms_entity_id');
-                // $sms_template_id = "1707172234124956959";
-                
-                // $myMessage = urlencode('We are pleased to inform you that your product repair charge is now ready for payment. Kindly use the following link to complete the transaction: '.$url_link.' .AMMR TECHNOLOGY LLP');
-
-                // $sms_url = 'https://sms.bluwaves.in/sendsms/bulk.php?username=ammrllp&password=123456789&type=TEXT&sender=AMMRTL&mobile='.$mobile.'&message='.$myMessage.'&entityId='.$sms_entity_id.'&templateId='.$sms_template_id;
-            
-                // // // echo $myMessage; die;
-        
-                // $curl = curl_init();
-        
-                // curl_setopt_array($curl, array(
-                // CURLOPT_URL => $sms_url,
-                // CURLOPT_RETURNTRANSFER => true,
-                // CURLOPT_ENCODING => '',
-                // CURLOPT_MAXREDIRS => 10,
-                // CURLOPT_TIMEOUT => 0,
-                // CURLOPT_FOLLOWLOCATION => true,
-                // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                // CURLOPT_CUSTOMREQUEST => 'GET',
-                // ));
-
-                // $response = curl_exec($curl);
-                // curl_close($curl);
+                $link_params = "?d=$kga_sales_id&amc_serial=$amc_unique_number";
+                sendAMCPaymentLink($mobile, $purchase_amount, $link_params, $customer_name);
                 
                 return redirect()->back()->with('message','Payment link send to this phone number, wating for payment!');
             }else{
-                throw new Exception('Record not found.');;
+                throw new Exception('Record not found.');
             }
             
         } catch (\Exception $e) {
