@@ -13,6 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'callback/kga-sales-order',
-        'employee/login'
+        'employee/login',
+        'webhook/whatsapp-chatbot-handler'
     ];
 }

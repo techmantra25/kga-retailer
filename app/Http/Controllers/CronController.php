@@ -1357,43 +1357,7 @@ class CronController extends Controller
 
             // 🔹 12. WhatsApp Invoice Sending
             $mobile = $customer_phone;
-            $download_url = route('whatsapp_amc_invoice', $amcSubscriptionId);
-
-            $apiDomainUrl   = config('whatsapp.api_domain_url');
-            $channelNumber  = config('whatsapp.channel_number');
-            $apiKey         = config('whatsapp.api_key');
-            $templateName   = 'billpay';
-            $languageCode   = config('whatsapp.language_code');
-            $recipientPhone = '91' . $mobile;
-
-            $data = [
-                "MessagingProduct" => "whatsapp",
-                "RecipientType"    => "individual",
-                "to"               => $recipientPhone,
-                "Type"             => "template",
-                "Template" => [
-                    "Name"     => $templateName,
-                    "Language" => ["Code" => $languageCode],
-                    "components" => [[
-                        "type"       => "body",
-                        "parameters" => [["type" => "text", "text" => $download_url]]
-                    ]]
-                ]
-            ];
-
-            $ch = curl_init();
-            curl_setopt_array($ch, [
-                CURLOPT_URL            => "$apiDomainUrl/api/v1.0/messages/send-template/$channelNumber",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POST           => true,
-                CURLOPT_HTTPHEADER     => [
-                    "Authorization: Bearer $apiKey",
-                    "Content-Type: application/json"
-                ],
-                CURLOPT_POSTFIELDS     => json_encode($data),
-            ]);
-            $response = curl_exec($ch);
-            curl_close($ch);
+            sendAMCInvoiceLink($mobile, $amcSubscriptionId, $customer_name);
 
             // 🔹 13. Ledger Insertion
             $resolved_type = $type;

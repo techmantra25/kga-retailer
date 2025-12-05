@@ -41,6 +41,7 @@ use App\Http\Controllers\RoleManagementController;
 use App\Http\Controllers\DealerPurchaseOrderController;
 use App\Http\Controllers\SpareReturnController;
 use App\Http\Controllers\SpareInventoryController;
+use App\Http\Controllers\WhatsappChatbotController;
 
 /*
 |--------------------------------------------------------------------------
@@ -213,6 +214,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/subscription-amc-data', [AmcController::class, 'subscription_amc_data'])->name('subscription-amc-data');
 		Route::get('/subscription-amc-data-view/{id}', [AmcController::class, 'subscription_amc_data_view'])->name('subscription-amc-data-view');
 		Route::get('/subscription-amc-data-pdf/{id}', [AmcController::class, 'subscription_amc_data_pdf'])->name('subscription-amc-data-pdf');
+        Route::get('/send-whatsapp-amc-invoice/{id}', [AmcController::class, 'send_whatsapp_amc_invoice'])->name('send-whatsapp-amc-invoice');
 		
 		Route::get('/subscription/csv', [AmcController::class, 'subscription_amc_csv'])->name('subscription.csv');
         Route::get('/pending-request', [AmcController::class, 'pending_request'])->name('pending-request');
@@ -623,6 +625,9 @@ Route::get('/amc/invoice/{id}', [CronController::class, 'whatsapp_amc_invoice'])
 Route::get('/website/send-whatsapp', [CronController::class, 'send_whatsapp'])->name('send_whatsapp');
 Route::get('/website/ami_amit', [CronController::class, 'Ami_Amit'])->name('ami_amit');
 Route::get('/test-invoice', [CronController::class, 'testGenerateInvoice']);
+
+// Whatsapp Chatbot 
+Route::post('webhook/whatsapp-chatbot-handler', [WhatsappChatbotController::class, 'handle']);
 
 // New Route
 // https://kgaerp.in/retailer/amc/payment/{amc_id}

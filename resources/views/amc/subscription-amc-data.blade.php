@@ -95,10 +95,34 @@
                 </p>
             </td>
 			<td>
-				<div class="d-flex gap-2">
-					<a href="{{route('amc.subscription-amc-data-view',$item->id)}}" class="btn btn-sm btn-outline-primary select-md">View</a>	
-					<a href="{{route('amc.subscription-amc-data-pdf',$item->id)}}" class="btn btn-sm btn-outline-success select-md">Bill</a>
-				</div>
+				<div class="gap-2">
+
+                    <a href="{{ route('amc.subscription-amc-data-view', $item->id) }}" 
+                    class="btn btn-sm btn-outline-primary select-md"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top" 
+                    title="View Details">
+                        View
+                    </a>
+
+                    <a href="{{ route('amc.subscription-amc-data-pdf', $item->id) }}" 
+                    class="btn btn-sm btn-outline-success select-md"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top" 
+                    title="Download Invoice">
+                        Download
+                    </a>
+
+                    <a href="{{ route('amc.send-whatsapp-amc-invoice', $item->id) }}" 
+                    class="btn btn-sm btn-outline-success select-md"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Send Invoice on WhatsApp"
+                    onclick="return confirm('Are you sure you want to send invoice on WhatsApp?');">
+                         WhatsApp
+                    </a>
+
+                </div>
 			</td>
         </tr>
 
@@ -119,5 +143,13 @@
       $('#search_date').on('change', function(){
         $('#searchForm').submit();
     })
+    
 </script>  
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+
 @endsection 

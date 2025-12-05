@@ -939,8 +939,7 @@ function sendAMCPaymentLink($mobile, $amount, $UrlParams, $customer_name = '')
     $apiVersion    = config('whatsapp.api_version');
     $channelNumber = config('whatsapp.channel_number');
     $apiKey        = config('whatsapp.api_key');
-
-
+    $UrlParams = config('whatsapp.website_holder')."/a/verify$UrlParams";
     // Format mobile
     $recipientPhone = "91" . $mobile;
 
@@ -960,7 +959,7 @@ function sendAMCPaymentLink($mobile, $amount, $UrlParams, $customer_name = '')
         "to"                => $recipientPhone,
         "type"              => "template",
         "template" => [
-            "name" => "send_amc_payment_link",
+            "name" => "send_amc_payment_live",
             "language" => ["code" => "en"],
             "components" => [
                 [
@@ -1003,7 +1002,7 @@ function sendAMCPaymentLink($mobile, $amount, $UrlParams, $customer_name = '')
     // Log to DB
     DB::table('whatsapp_send_responses')->insert([
         'mobile'        => $mobile,
-        'template_name' => 'send_amc_payment_link',
+        'template_name' => 'send_amc_payment_live',
         'request_json'  => json_encode($data),
         'response_json' => $response,
         'error_message' => $error,
@@ -1016,3 +1015,88 @@ function sendAMCPaymentLink($mobile, $amount, $UrlParams, $customer_name = '')
         "error"    => $error
     ];
 }
+function sendAMCInvoiceLink($mobile, $amc_subscription_id, $customer_name = '')
+{
+    $apiDomainUrl  = config('whatsapp.api_domain_url');
+    $apiVersion    = config('whatsapp.api_version');
+    $channelNumber = config('whatsapp.channel_number');
+    $apiKey        = config('whatsapp.api_key');
+
+    $invoiceUrl = config('whatsapp.website_holder')."/amc/invoice/$amc_subscription_id";
+    // Format mobile
+    $recipientPhone = "91" . $mobile;
+
+    /**
+     * WhatsApp Template: send_amc_invoice
+     * {{1}}  = Customer Name
+     * Button URL → {{url}}
+     */
+
+    $data = [
+        "messaging_product" => "whatsapp",
+        "recipient_type"    => "individual",
+        "to"                => $recipientPhone,
+        "type"              => "template",
+        "template" => [
+            "name" => "send_amc_invoice",
+            "language" => ["code" => "en"],
+            "components" => [
+                [
+                    "type" => "body",
+                    "parameters" => [
+                        [
+                            "type" => "text",
+                            "text" => $customer_name   // {{1}}
+                        ]
+                    ]
+                ],
+                [
+                    "type" => "button",
+                    "sub_type" => "url",
+                    "index" => "0",
+                    "parameters" => [
+                        [
+                            "type" => "text",
+                            "text" => $invoiceUrl     // {{url}}
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    $apiUrl = "$apiDomainUrl/$apiVersion/$channelNumber/messages";
+
+    // CURL CALL
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $apiUrl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer $apiKey",
+            "Content-Type: application/json"
+        ],
+        CURLOPT_POSTFIELDS => json_encode($data),
+    ]);
+
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+    // Log to DB
+    DB::table('whatsapp_send_responses')->insert([
+        'mobile'        => $mobile,
+        'template_name' => 'send_amc_invoice',
+        'request_json'  => json_encode($data),
+        'response_json' => $response,
+        'error_message' => $error,
+        'created_at'    => now(),
+        'updated_at'    => now(),
+    ]);
+
+    return [
+        "response" => $response,
+        "error"    => $error
+    ];
+}
+

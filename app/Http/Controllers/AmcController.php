@@ -11,7 +11,9 @@ use App\Models\AmcDuration;
 use App\Models\KgaSalesData;
 use App\Models\AmcSubscription;
 use App\Models\AmcCallHistory;
+use App\Models\AmcServicePayment;
 use App\Models\User;
+use App\Models\Ledger;
 use App\Models\BeforeAmcSubscription;
 use App\Models\ProductWarranty;
 use App\Models\PlanAsset;
@@ -1269,6 +1271,48 @@ class AmcController extends Controller
 		 $pdf = PDF::loadView('amc.subscription-pdf',compact('subscription'));
 		return $pdf->download("amc-subscription-{$subscription->amc_unique_number}.pdf");
 	}
+    public function send_whatsapp_amc_invoice($id)
+    {
+        try {
+
+            $subscription = AmcSubscription::findOrFail($id);
+
+            // Find ledger entry
+            $ledger = Ledger::where('amc_id', $id)->first();
+
+            // Determine customer data
+            if ($ledger && $ledger->payment_id) {
+                $customerData = AmcServicePayment::findOrFail($ledger->payment_id);
+
+                $customer_name = $customerData->customer_name;
+                $mobile        = $customerData->customer_phone;
+            } else {
+                $customer_name = optional($subscription->SalesData)->customer_name;
+                $mobile        = optional($subscription->SalesData)->mobile;
+            }
+
+            // Validate
+            if (!$customer_name || !$mobile) {
+                Session::flash('error', "Customer name or mobile number not found.");
+                return back();
+            }
+
+            // Send WhatsApp Message
+            $response = sendAMCInvoiceLink($mobile, $id, $customer_name);
+
+            // Success message
+            Session::flash('message', "Invoice successfully sent to WhatsApp number: $mobile");
+
+            return back();
+
+        } catch (\Exception $e) {
+
+            // Error message
+            Session::flash('error', "Failed to send invoice on WhatsApp. Error: " . $e->getMessage());
+            return back();
+        }
+    }
+
 	
 	public function subscription_amc_csv(Request $request){
 		
