@@ -25,9 +25,11 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('return_spare_id');
-            $table->index('product_id');
-            $table->index('scanned_by');
+            $table->foreign('return_spare_id')->references('id')->on('return_spare')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('scanned_by')->references('id')->on('users')->onDelete('cascade');
+
+           
         });
     }
 

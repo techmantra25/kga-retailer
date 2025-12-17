@@ -23,8 +23,10 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
-            $table->index('service_partner_id');
-            $table->index('pincode_id');
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+            $table->foreign('pincode_id')->references('id')->on('pincodes')->onDelete('cascade');
+
+           
         });
     }
 

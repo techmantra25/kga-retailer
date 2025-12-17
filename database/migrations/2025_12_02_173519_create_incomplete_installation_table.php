@@ -33,10 +33,12 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('product_id');
-            $table->index('installation_id');
-            $table->index('cat_id');
-            $table->index('service_partner_id');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('installation_id')->references('id')->on('installations')->onDelete('cascade');
+            $table->foreign('cat_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+
+           
         });
     }
 

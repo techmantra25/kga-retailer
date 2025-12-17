@@ -24,11 +24,14 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('spare_id');
-            $table->index('service_partner_id');
-            $table->index('goods_id');
-            $table->index('spare_return_id');
-            $table->index('supplier_id');
+            $table->foreign('spare_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('goods_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+            // $table->foreign('spare_return_id')->references('id')->on('spare_returns')->onDelete('cascade');
+            // $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
+
+
+           
         });
     }
 

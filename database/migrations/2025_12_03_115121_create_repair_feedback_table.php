@@ -24,8 +24,10 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('repair_id');
-            $table->index('product_id');
+            $table->foreign('repair_id')->references('id')->on('repairs')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+
+            
         });
     }
 

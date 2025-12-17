@@ -27,10 +27,12 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
-            $table->index('stock_id');
-            $table->index('product_id');
-            $table->index('packingslip_id');
-            $table->index('scanned_by');
+            $table->foreign('stock_id')->references('id')->on('stock')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('packingslip_id')->references('id')->on('packingslips')->onDelete('cascade');
+            $table->foreign('scanned_by')->references('id')->on('users')->onDelete('cascade');
+
+           
         });
     }
 

@@ -22,8 +22,10 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('dealer_id');
-            $table->index('created_by');
+            $table->foreign('dealer_id')->references('id')->on('dealers')->onDelete('cascade');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+
+         
         });
     }
 

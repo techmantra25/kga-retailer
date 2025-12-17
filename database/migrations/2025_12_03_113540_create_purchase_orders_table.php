@@ -26,8 +26,8 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
-            $table->index('created_by');
-            $table->index('supplier_id');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            // $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
         });
     }
 

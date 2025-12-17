@@ -23,9 +23,9 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
-            // Indexes
-            $table->index('product_id', 'package_id_1');
-            $table->index('dap_id', 'dap_id_k1');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('dap_id')->references('id')->on('dap_services')->onDelete('cascade');
+         
         });
     }
 

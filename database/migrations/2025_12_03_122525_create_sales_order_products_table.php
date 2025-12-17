@@ -24,8 +24,10 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
-            $table->index('sales_orders_id');
-            $table->index('product_id');
+            $table->foreign('sales_orders_id')->references('id')->on('sales_orders')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+
+            
         });
     }
 

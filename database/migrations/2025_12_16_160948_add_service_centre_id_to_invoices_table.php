@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('plan_assets', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 255)->nullable();
-            $table->dateTime('created_at');
-            $table->timestamp('updated_at')->useCurrent();
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->unsignedBigInteger('service_centre_id')->nullable()->after('service_partner_id'); 
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('plan_assets');
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->unsignedBigInteger('service_centre_id')->nullable()->after('service_partner_id'); 
+        });
     }
 };

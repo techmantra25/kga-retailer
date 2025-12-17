@@ -11,7 +11,9 @@ class ProductWarranty extends Model
     //
 
     protected $table = "product_warranty";
-
+    protected $fillable = [
+		  'goods_id', 'dealer_type', 'warranty_type', 'additional_warranty_type', 'spear_id', 'warranty_period', 'number_of_cleaning', 'number_of_deep_cleaning', 'created_by', 'updated_by'
+		];
 
     /**
      * Get the goods that owns the ProductWarranty

@@ -26,9 +26,8 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            // Indexes
-            $table->index('branch_id');
-            $table->index('service_centre_id');
+            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
+            // $table->foreign('service_centre_id')->references('id')->on('service_centers')->onDelete('cascade');
         });
     }
 

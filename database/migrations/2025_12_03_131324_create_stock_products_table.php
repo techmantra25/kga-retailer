@@ -21,6 +21,9 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
+            $table->foreign('stock_id')->references('id')->on('stock')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+
             $table->index('stock_id');
             $table->index('product_id');
         });

@@ -23,9 +23,9 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            // Indexes
-            $table->index('dap_service_id');
-            $table->index('spare_id');
+            $table->foreign('dap_service_id')->references('id')->on('dap_services')->onDelete('cascade');
+            $table->foreign('spare_id')->references('id')->on('products')->onDelete('cascade');
+          
         });
     }
 

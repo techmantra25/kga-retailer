@@ -21,8 +21,10 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
-            $table->index('purchase_order_id');
-            $table->index('return_spare_id');
+            $table->foreign('purchase_order_id')->references('id')->on('purchase_orders')->onDelete('cascade');
+            // $table->foreign('return_spare_id')->references('id')->on('return_spares')->onDelete('cascade');
+
+         
         });
     }
 

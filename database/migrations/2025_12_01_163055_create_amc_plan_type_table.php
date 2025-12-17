@@ -14,10 +14,14 @@ return new class extends Migration
         Schema::create('amc_plan_type', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255);
-            $table->string('plan_asset_id', 255)->nullable();
+            $table->unsignedBigInteger('plan_asset_id')->nullable();
             $table->integer('deleted_at')->default(1)->comment('0:soft-delete');
             $table->dateTime('created_at');
             $table->timestamp('updated_at')->useCurrent();
+
+            // $table->foreign('plan_asset_id')->references('id')->on('plan_assets')->onDelete('cascade');
+
+
         });
     }
 

@@ -34,11 +34,11 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            // Indexes
-            $table->index('dap_service_id');
-            $table->index('service_centre_id');
-            $table->index('product_id');
-            $table->index('dap_request_receive_drop_id');
+            // $table->foreign('dap_service_id')->references('id')->on('dap_services')->onDelete('cascade');
+            // $table->foreign('service_centre_id')->references('id')->on('service_centers')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('dap_request_receive_drop_id')->references('id')->on('dap_request_receives')->onDelete('cascade');
+         
         });
     }
 

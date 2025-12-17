@@ -13,7 +13,9 @@ class Ledger extends Model
 {
     //
     protected $table = "ledgers";
-
+    protected $fillable = [
+        'type', 'amount', 'entry_date', 'user_type', 'user_id', 'service_partner_id', 'dealer_id', 'payment_id', 'installation_id', 'repair_id', 'dap_id', 'crp_id', 'amc_id', 'kga_sales_id', 'maintenance_id', 'credit_note_id', 'purpose', 'transaction_id'
+    ];
     /**
      * Get the installation that owns the Ledger
      *

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('amc_call_history', function (Blueprint $table) {
             $table->id();
-            $table->integer('kga_sale_id')->comment('table from KGA_SALES_DATA table');
+            $table->unsignedBigInteger('kga_sale_id')->nullable()->comment('table from KGA_SALES_DATA table');
             $table->integer('type')->default(1)->comment('1: call back, 2: refused');
             $table->integer('reminder_days')->nullable();
             $table->date('reminder_date')->nullable();
@@ -21,7 +21,13 @@ return new class extends Migration
             $table->integer('auth_id')->nullable();
             $table->text('ip')->nullable();
             $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->default('0000-00-00 00:00:00');
+            $table->timestamp('updated_at')
+                  ->useCurrent()
+                  ->useCurrentOnUpdate();
+
+            // $table->foreign('kga_sale_id')->references('id')->on('kga_sales_data')->onDelete('cascade');
+            
+
         });
     }
 

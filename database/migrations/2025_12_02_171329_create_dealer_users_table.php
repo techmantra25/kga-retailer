@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('dealer_users', function (Blueprint $table) {
             $table->id(); 
             $table->unsignedBigInteger('dealer_id')->nullable();
+            $table->foreign('dealer_id')->references('id')->on('dealers')->onDelete('cascade');
             $table->string('name', 200)->nullable();
             $table->string('company_name', 250)->nullable();
             $table->string('phone', 100)->nullable();
@@ -23,7 +24,6 @@ return new class extends Migration
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
 
-            $table->index('dealer_id');
         });
     }
 

@@ -18,8 +18,10 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('spare_id');
-            $table->index('goods_id');
+            $table->foreign('spare_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('goods_id')->references('id')->on('products')->onDelete('cascade');
+
+           
         });
     }
 

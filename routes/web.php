@@ -316,6 +316,15 @@ Route::middleware(['auth'])->group(function () {
     });
      # Customer Point Repair
     Route::prefix('customer-point-repair')->group(function(){
+		//Replacement Routes
+		Route::get('/replacement/create/{id}', [CustomerpointRepairController::class, 'createReplacementRequest'])->name('customer-point-repair.replacement.create');
+		Route::post('/upload-replacement-report', [CustomerpointRepairController::class, 'uploadReplacementReport'])->name('customer-point-repair.upload-replacement-report');
+		Route::post('/approve-level-1', [CustomerpointRepairController::class, 'approveLevel1'])->name('customer-point-repair.replacement.approveLevel1');
+		Route::post('/approve-level-2', [CustomerpointRepairController::class, 'approveLevel2'])->name('customer-point-repair.replacement.approveLevel2');
+		Route::get('/replacement/list', [CustomerpointRepairController::class, 'replacementList'])->name('customer-point-repair.replacement.list');
+		Route::post('replacement/generate-challan-full-flow/{id}', [CustomerpointRepairController::class, 'generateChallanFullFlow'])->name('customer-point-repair.replacement.generate-challan');
+		Route::post('replacement/verify-otp',[CustomerpointRepairController::class, 'verifyOtp'])->name('customer-point-repair.replacement.verify-otp');
+
         Route::get('service-partner/list', [CustomerpointRepairController::class, 'index'])->name('customer-point-repair.list');
         Route::get('/show/{id}/{getQueryString?}', [CustomerpointRepairController::class, 'show'])->name('customer-point-repair.show');
         Route::get('/upload-pincode-csv/{id}',[CustomerpointRepairController::class, 'upload_pincode_csv'])->name('customer-point-repair.upload-pincode-csv');
@@ -336,6 +345,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/download-customer-invoice/{id}', [CustomerpointRepairController::class, 'download_customer_invoice'])->name('customer-point-repair.download-customer-invoice');
         Route::get('/send-user-invoice-link/{id}', [CustomerpointRepairController::class, 'send_user_invoice_link'])->name('customer-point-repair.send-user-invoice-link');
         Route::get('/return-dead-spares-barcode/{id}/{getQueryString?}', [CustomerpointRepairController::class, 'DeadBarcodes'])->name('customer-point-repair.return-spares.barcodes');
+		
 
     });
 
@@ -628,7 +638,6 @@ Route::get('/test-invoice', [CronController::class, 'testGenerateInvoice']);
 
 // Whatsapp Chatbot 
 Route::post('webhook/whatsapp-chatbot-handler', [WhatsappChatbotController::class, 'handle']);
-
 // New Route
 // https://kgaerp.in/retailer/amc/payment/{amc_id}
 // https://kgaerp.in/retailer/amc/bill/{amc_id}

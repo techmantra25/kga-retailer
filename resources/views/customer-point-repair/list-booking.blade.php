@@ -262,10 +262,49 @@
                             <a href="#" 
                                 class="btn btn-warning select-md">
                                     Return Spare Completed
-                                </a>
+                            </a>
                         @endif
+						@if($item->replace_button_enable && !$item->replacementRequest)
+							  <button type="button" 
+									class="btn btn-outline-primary btn-sm select-md"
+									onclick="if(confirm('Are you sure you want to create a replacement request?')) { window.location='{{ route('customer-point-repair.replacement.create', $item->id) }}' }">
+								Replace
+							</button>
+						@endif
+						@if($item->replacementRequest && $item->replacementRequest->status == 'pending')
+							<button type="button" class="btn btn-outline-primary btn-sm select-md" data-bs-toggle="modal" data-bs-target="#replacementModal{{$item->id}}">
+								Upload Report
+							</button>
+						@endif
+						@php
+						  $user = Auth::guard('web')->user();
+						@endphp
+				       {{-- Level 1 Approval --}}
+						@if($item->replacementRequest && $item->replacementRequest->status == 'report_uploaded' && in_array($user->role_id,[4,1]))
+							 <button type="button"
+								class="btn btn-outline-success btn-sm"
+								onclick="approveLevel1({{ $item->replacementRequest->id }})">
+								Level 1 Approval
+							</button>
+						@endif
+
+						{{-- Level 2 Approval --}}
+						@if($item->replacementRequest && $item->replacementRequest->status == 'level_approval_1' && in_array($user->role_id,[6,1]))
+							 <button type="button"
+								class="btn btn-outline-success btn-sm"
+								onclick="approveLevel2({{ $item->replacementRequest->id }})">
+								Level 2 Approval
+							</button>
+						@endif
+
+						{{-- Completed --}}
+						@if($item->replacementRequest && $item->replacementRequest->status == 'completed')
+							<span class="badge bg-success">Completed</span>
+						@endif
+
                     </td>
 
+					  
 
 
                     <!-- Approval Modal -->
@@ -294,6 +333,47 @@
                             </form>
                         </div>
                     </div>
+		
+		             <!-- Replacement Modal -->
+						<div class="modal fade" id="replacementModal{{$item->id}}" tabindex="-1" aria-labelledby="replacementModalLabel" aria-hidden="true">
+						  <div class="modal-dialog">
+							<div class="modal-content">
+							
+							  <form method="POST" action="{{route('customer-point-repair.upload-replacement-report')}}" enctype="multipart/form-data">
+
+								@csrf
+
+								<div class="modal-header">
+									<h5 class="modal-title" id="replacementModalLabel">Upload Replacement Report</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								</div>
+
+								<div class="modal-body">
+
+									<p>Please upload the replacement report.  
+									<strong>You must upload within 2 days.</strong></p>
+
+									<div class="mb-3">
+										<label>Upload Report (PDF/Image)</label>
+										<input type="file" name="report_file" class="form-control" required>
+										@error('report_file')
+										<p class="text-danger small">{{$message}}</p>
+										@enderror
+									</div>
+
+									<input type="hidden" name="id" value="{{ $item->id }}">
+								</div>
+
+								<div class="modal-footer">
+									 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+									<button  type="submit"  class="btn btn-primary">Submit Report</button>
+								</div>
+
+							  </form>
+
+							</div>
+						  </div>
+						</div>
                     <!-- cancell Modal -->
                     <div class="modal fade" id="exampleModalCancell{{$item->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -629,7 +709,52 @@
             },
         });
     }
+	
+	function approveLevel1(id) {
 
+		if (!confirm("Are you sure you want to approve Level 1?")) {
+			return;
+		}
+
+		$.ajax({
+			url: "{{ route('customer-point-repair.replacement.approveLevel1') }}",
+			type: "POST",
+			data: {
+				id: id,
+				_token: "{{ csrf_token() }}"
+			},
+			success: function (response) {
+				alert("Level 1 Approved Successfully!");
+				location.reload(); // refresh so button changes to Level 2
+			},
+			error: function (xhr) {
+				alert("Error: " + xhr.responseText);
+			}
+		});
+	}
+
+	function approveLevel2(id) {
+
+		if (!confirm("Are you sure you want to approve Level 1?")) {
+			return;
+		}
+
+		$.ajax({
+			url: "{{ route('customer-point-repair.replacement.approveLevel2') }}",
+			type: "POST",
+			data: {
+				id: id,
+				_token: "{{ csrf_token() }}"
+			},
+			success: function (response) {
+				alert("Level 2 Approved Successfully!");
+				location.reload(); // refresh so button changes to Level 2
+			},
+			error: function (xhr) {
+				alert("Error: " + xhr.responseText);
+			}
+		});
+	}
     
 </script>
 @endsection

@@ -12,12 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('repairs', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id();
 
-            $table->unsignedBigInteger('service_partner_id')->nullable();
-            $table->unsignedBigInteger('dealer_user_id')->nullable();
-            $table->unsignedBigInteger('dealer_id')->nullable();
+            $table->unsignedBigInteger('dealer_user_id')->index();
+            // $table->foreign('dealer_user_id')->references('id')->on('dealer_users')->onDelete('cascade');
 
+            $table->unsignedBigInteger('service_partner_id')->index();
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+
+            $table->unsignedBigInteger('dealer_id')->index();
+            $table->foreign('dealer_id')->references('id')->on('dealers')->onDelete('cascade');
+
+            $table->unsignedBigInteger('product_id')->index();
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            
             $table->string('unique_id', 100)->nullable();
             $table->string('service_partner_email', 255)->nullable();
             $table->string('dealer_user_name', 200)->nullable();
@@ -30,7 +38,6 @@ return new class extends Migration
             $table->string('product_value', 250)->nullable();
             $table->string('product_sl_no', 100)->nullable();
             $table->string('product_name', 250)->nullable();
-            $table->unsignedBigInteger('product_id')->nullable();
 
             $table->string('warranty_status', 100)->nullable();
             $table->string('warranty_period', 100)->nullable();
@@ -49,12 +56,15 @@ return new class extends Migration
             $table->tinyInteger('is_repeated')->default(0);
 
             $table->timestamps();
+            
 
-            // Indexes
-            $table->index('dealer_user_id');
-            $table->index('service_partner_id');
-            $table->index('dealer_id');
-            $table->index('product_id');
+
+            // $table->foreign('dealer_user_id')->references('id')->on('dealer_users')->onDelete('cascade');
+            // $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+            // $table->foreign('dealer_id')->references('id')->on('dealers')->onDelete('cascade');
+            // $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+
+           
         });
     }
 

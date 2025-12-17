@@ -79,6 +79,11 @@ class CustomerPointService extends Model
     {
         return $this->hasMany(\App\Models\CRPFinalSpare::class, 'crp_id', 'id');
     }
+
+    public function replacementRequest(): HasOne
+    {
+        return $this->HasOne(\App\Models\ReplacementRequest::class, 'crp_id', 'id');
+    }
     
   
 }

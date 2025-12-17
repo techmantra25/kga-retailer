@@ -13,12 +13,17 @@ return new class extends Migration
     {
         Schema::create('amc_payment_links', function (Blueprint $table) {
             $table->id();
-            $table->integer('kga_sales_id');
+            $table->unsignedBigInteger('kga_sales_id')->nullable();
             $table->string('amc_unique_number', 255)->nullable();
             $table->text('link')->nullable();
             $table->integer('status')->default(0)->comment('0:failed, 1:paid');
-            $table->dateTime('created_at')->nullable();
-            $table->dateTime('updated_at')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')
+                  ->useCurrent()
+                  ->useCurrentOnUpdate();
+
+            // $table->foreign('kga_sale_id')->references('id')->on('kga_sales_data')->onDelete('cascade');
+
         });
     }
 

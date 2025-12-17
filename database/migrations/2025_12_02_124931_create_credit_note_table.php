@@ -32,13 +32,14 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            // Indexes
-            $table->index('service_partner_id');
-            $table->index('installation_id');
-            $table->index('repair_id');
-            $table->index('created_by');
-            $table->index('ho_sale_id');
-            $table->index('amc_id');
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+            $table->foreign('installation_id')->references('id')->on('installations')->onDelete('cascade');
+            $table->foreign('repair_id')->references('id')->on('repairs')->onDelete('cascade');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('ho_sale_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('amc_id')->references('id')->on('amc_subscription')->onDelete('cascade');
+
+            
         });
     }
 

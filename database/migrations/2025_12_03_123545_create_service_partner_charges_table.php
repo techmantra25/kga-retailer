@@ -23,8 +23,10 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('service_partner_id');
-            $table->index('product_id');
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+
+           
         });
     }
 

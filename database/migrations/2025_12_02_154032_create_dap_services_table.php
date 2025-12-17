@@ -104,11 +104,11 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            // Indexes
-            $table->index('product_id');
-            $table->index('branch_id');
-            $table->index('created_by');
-            $table->index('employee_id');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            // $table->foreign('employee_id')->references('id')->on('dealer_employee')->onDelete('cascade');
+           
         });
     }
 

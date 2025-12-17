@@ -19,8 +19,10 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('dealer_purchase_order_id');
-            $table->index('product_id');
+            $table->foreign('dealer_purchase_order_id')->references('id')->on('dealer_purchase_orders')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+
+            
         });
     }
 

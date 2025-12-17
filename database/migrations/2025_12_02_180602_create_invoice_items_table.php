@@ -25,9 +25,9 @@ return new class extends Migration
             $table->string('hsn_code', 100)->nullable();
             $table->timestamps();
 
-            // Indexes
-            $table->index('invoice_id', 'invoice_items_invoice_id_foreign');
-            $table->index('product_id', 'invoice_items_product_id_foreign');
+            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            
         });
     }
 

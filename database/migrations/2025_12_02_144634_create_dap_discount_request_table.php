@@ -23,9 +23,9 @@ return new class extends Migration
             $table->dateTime('created_at');
             $table->dateTime('updated_at');
 
-            // Indexes
-            $table->index('dap_id', 'dap_id_1');
-            $table->index('approval_by', 'approval_by_1');
+            // $table->foreign('dap_id')->references('id')->on('dap_services')->onDelete('cascade');
+            $table->foreign('approval_by')->references('id')->on('users')->onDelete('cascade');
+            
         });
     }
 

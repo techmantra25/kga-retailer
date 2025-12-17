@@ -21,9 +21,9 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
-            // Indexes
-            $table->index('packingslip_id', 'packingslip_barcodes_packingslip_id_foreign');
-            $table->index('product_id', 'packingslip_barcodes_product_id_foreign');
+            $table->foreign('packingslip_id')->references('id')->on('packingslips')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+          
         });
     }
 

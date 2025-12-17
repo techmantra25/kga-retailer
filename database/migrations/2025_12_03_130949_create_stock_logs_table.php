@@ -25,10 +25,12 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('product_id');
-            $table->index('packingslip_id');
-            $table->index('purchase_order_id');
-            $table->index('dealer_purchase_order_id');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('packingslip_id')->references('id')->on('packingslips')->onDelete('cascade');
+            $table->foreign('purchase_order_id')->references('id')->on('purchase_orders')->onDelete('cascade');
+            $table->foreign('dealer_purchase_order_id')->references('id')->on('dealer_purchase_orders')->onDelete('cascade');
+
+            
         });
     }
 

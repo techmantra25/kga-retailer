@@ -27,8 +27,8 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            // Index
-            $table->index('crp_id');
+            // $table->foreign('crp_id')->references('id')->on('customer_point_services')->onDelete('cascade');
+            
         });
     }
 

@@ -253,6 +253,18 @@
                             </ul>
                         </li>
                     @endif
+					
+					<li>
+						<a href="#"><i class="fi fi-br-hammer-war"></i> <span>Replacement Management</span></a>
+						<ul>
+							<li 
+								@if(request()->is('customer-point-repair/replacement/list')) class="active" @endif
+								>
+								<a href="{{route('customer-point-repair.replacement.list')}}"><i class="fi fi-br-users"></i> <span>Replacement List</span> </a>
+							</li>
+
+						</ul>
+					</li>
                     @if($accessSupplier) 
                     <li class="@if(request()->is('supplier*')) {{'active'}} @endif">
                         <a href="{{route('supplier.list')}}"><i class="fi fi-br-users-alt"></i> <span>Supplier</span></a>

@@ -22,8 +22,9 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('installation_id');
-            $table->index('product_id');
+            $table->foreign('installation_id')->references('id')->on('installations')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+         
 
         });
     }

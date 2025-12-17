@@ -33,14 +33,16 @@ return new class extends Migration
             $table->string('transaction_id', 250)->nullable();
             $table->timestamps();
 
-            $table->index('user_id');
-            $table->index('service_partner_id');
-            $table->index('dealer_id');
-            $table->index('payment_id');
-            $table->index('installation_id');
-            $table->index('repair_id');
-            $table->index('maintenance_id');
-            $table->index('credit_note_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+            $table->foreign('dealer_id')->references('id')->on('dealers')->onDelete('cascade');
+            // $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade');
+            $table->foreign('installation_id')->references('id')->on('installations')->onDelete('cascade');
+            $table->foreign('repair_id')->references('id')->on('repairs')->onDelete('cascade');
+            $table->foreign('maintenance_id')->references('id')->on('maintenances')->onDelete('cascade');
+            $table->foreign('credit_note_id')->references('id')->on('credit_note')->onDelete('cascade');
+
+          
         });
     }
 

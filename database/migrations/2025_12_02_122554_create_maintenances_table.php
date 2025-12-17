@@ -57,10 +57,10 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            // Indexes
-            $table->index('product_id');
-            $table->index('dealer_id');
-            $table->index('service_partner_id');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('dealer_id')->references('id')->on('dealers')->onDelete('cascade');
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+            
         });
     }
 

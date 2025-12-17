@@ -28,10 +28,10 @@ return new class extends Migration
             $table->unsignedBigInteger('created_by')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            // Indexes
-            $table->index('service_partner_id');
-            $table->index('created_by');
-            $table->index('ho_sale_id');
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('ho_sale_id')->references('id')->on('users')->onDelete('cascade');
+           
         });
     }
 

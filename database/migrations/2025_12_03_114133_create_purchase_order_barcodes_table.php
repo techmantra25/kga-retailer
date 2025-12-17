@@ -31,9 +31,11 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
 
-            $table->index('purchase_order_id');
-            $table->index('product_id');
-            $table->index('scanned_by');
+            $table->foreign('purchase_order_id')->references('id')->on('purchase_orders')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('scanned_by')->references('id')->on('users')->onDelete('cascade');
+
+            
         });
     }
 

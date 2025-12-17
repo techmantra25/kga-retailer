@@ -29,10 +29,12 @@ return new class extends Migration
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
-            $table->index('goods_id');
-            $table->index('spare_id');
-            $table->index('repair_id');
-            $table->index('service_partner_id');
+            $table->foreign('goods_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('spare_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('repair_id')->references('id')->on('repairs')->onDelete('cascade');
+            $table->foreign('service_partner_id')->references('id')->on('service_partners')->onDelete('cascade');
+
+            
         });
     }
 
