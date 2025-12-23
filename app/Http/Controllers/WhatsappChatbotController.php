@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\KgaSalesData;
 use App\Models\Category;
 use Illuminate\Support\Facades\Log;
 
@@ -16,32 +17,72 @@ class WhatsappChatbotController extends Controller
     // button_value: Repair / Service
     public function handle(Request $request)
     {
-        Log::info("Webhook Triggered", $request->all()); // Log full request
+        Log::info("Webhook Triggered", $request->all());
 
-        $sender = $request->sender;
-        $message = strtolower(trim($request->message));
-        $button_value = strtolower(trim($request->button_value));
+        $sender       = $request->sender;
+        $message      = strtolower(trim($request->message ?? ''));
+        $buttonValue  = strtolower(trim($request->button_value ?? ''));
+        $product_serial_number  = strtolower(trim($request->product_serial_number ?? ''));
 
-        Log::info("Parsed Request Data", [
-            "sender"       => $sender,
-            "message"      => $message,
-            "button_value" => $button_value
+        /**
+         * 1. Handle Service Selection
+         */
+        if (in_array($buttonValue, ['installation', 'repair / service', 'call status'])) {
+            Log::info("Service Button Detected", [
+                "button_value" => $buttonValue,
+                "sender" => $sender
+            ]);
+
+            return $this->serviceResponse($buttonValue);
+        }
+        if (in_array($buttonValue, ['catalogue'])) {
+            Log::info("Service Button Detected", [
+                "button_value" => $buttonValue,
+                "sender" => $sender
+            ]);
+            $response = [
+                "status"  => "success",
+                "message" => "Thank you! 😊 We’ve received your details, and our team will reach out soon.This is for lead capture only. No catalogue will be sent.",
+            ];
+            Log::info('WhatsApp Button Response', $response);
+
+            return response()->json($response);
+        }
+
+        /**
+         * 2. Handle Category Selection
+         */
+        if (str_starts_with($buttonValue, 'category:')) {
+
+            $categoryId = str_replace('category:', '', $buttonValue);
+
+            Log::info("Category Selected", [
+                "category_id" => $categoryId,
+                "sender" => $sender
+            ]);
+
+            // 👉 NEXT STEP AFTER CATEGORY
+            // Option A: Ask serial number
+            return $this->askSerialNumber($categoryId);
+        }
+
+        // 3 handle Product Serial Number
+        if($product_serial_number) {
+            Log::info("Product Serial Number Received", [
+                "serial_number" => $product_serial_number,
+                "sender" => $sender
+            ]);
+
+            return $this->validateProduct($product_serial_number);
+        }
+
+        Log::warning("No recognized input received", [
+            "sender" => $sender,
+            "button_value" => $buttonValue,
+            "message" => $message
         ]);
-
-        // 1. Handle Service Selection
-        if (in_array($button_value, ['installation','repair / service', 'call status'])) {
-            Log::info("Service Button Detected", ["button_value" => $button_value]);
-            return $this->serviceResponse($button_value);
-        }
-
-        // 2. Handle Product Category
-        if (str_starts_with($button_value, "category:")) {
-            // $categoryId = str_replace("category:", "", $button_value);
-            return $this->askSerialNumber();
-        }
-
-        Log::warning("No recognized button or message received");
     }
+
 
 
     private function serviceResponse($value)
@@ -78,19 +119,25 @@ class WhatsappChatbotController extends Controller
                 });
 
 
-            $buttons = $categories->map(function ($cat) {
+           $buttons = $categories
+            ->take(10)
+            ->map(function ($cat) {
                 return [
-                    "title" => $cat->name,
+                    "title" => strtoupper($cat->name),
                     "value" => "category:" . $cat->id
                 ];
-            })->toArray();
+            })
+            ->values()
+            ->toArray();
 
 
+           
             $response = [
                 "status"  => "success",
-                "message" => "Kindly Select Your Product Category",
+                "message" => "Kindly Select Your Product",
                 "buttons" => $buttons
             ];
+            Log::info('WhatsApp Button Response', $response);
 
             return response()->json($response);
         } 
@@ -117,6 +164,28 @@ class WhatsappChatbotController extends Controller
         ];
         return response()->json($response);
     }
+
+    private function validateProduct($sl)
+    {
+        $product = KgaSalesData::where('serial', $sl)->first();
+
+        if (!$product) {
+            $response = [
+                "status"  => "failed",
+                "code"    => 404,
+                "message" => "Kindly enter your Product Serial Number.",
+            ];
+        } else {
+            $response = [
+                "status"  => "success",
+                "code"    => 200,
+                "message" => "Product Found: " . $product->name,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
 
 
     // <?php
@@ -186,16 +255,7 @@ class WhatsappChatbotController extends Controller
     //         return $this->reply("Kindly enter your Product Serial Number.");
     //     }
 
-    //     private function validateProduct($sl)
-    //     {
-    //         $product = Product::where('serial_no', $sl)->first();
-
-    //         if (!$product) {
-    //             return $this->reply("❌ Incorrect Serial Number. Please try again.");
-    //         }
-
-    //         return $this->reply("This SL No belongs to: " . $product->model_name . "\n\nIs this correct?");
-    //     }
+    
 
     //     private function bookingStatus($bookingId)
     //     {
