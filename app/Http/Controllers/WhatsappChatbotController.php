@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\KgaSalesData;
+use App\Models\StockBarcode;
 use App\Models\Category;
 use Illuminate\Support\Facades\Log;
 
@@ -19,10 +19,28 @@ class WhatsappChatbotController extends Controller
     {
         Log::info("Webhook Triggered", $request->all());
 
+        // step 1, 2
         $sender       = $request->sender;
         $message      = strtolower(trim($request->message ?? ''));
         $buttonValue  = strtolower(trim($request->button_value ?? ''));
+
+        // step 3
         $product_serial_number  = strtolower(trim($request->product_serial_number ?? ''));
+
+        // step 4
+        $product_confirmation  = strtolower(trim($request->product_confirmation ?? ''));
+        $product_id  = strtolower(trim($request->product_id ?? ''));
+
+        // step 5
+        $invoice_date  = strtolower(trim($request->invoice_date ?? ''));
+        $pincode  = strtolower(trim($request->pincode ?? ''));
+        $address  = strtolower(trim($request->address ?? ''));
+
+        // step 6
+        $call_booking_number = strtolower(trim($request->call_booking_number ?? ''));
+
+        // Step 1.2.2
+        $call_booked_id = strtolower(trim($request->call_booked_id ?? ''));
 
         /**
          * 1. Handle Service Selection
@@ -76,11 +94,103 @@ class WhatsappChatbotController extends Controller
             return $this->validateProduct($product_serial_number);
         }
 
-        Log::warning("No recognized input received", [
-            "sender" => $sender,
-            "button_value" => $buttonValue,
-            "message" => $message
-        ]);
+        // 4 handle product confirmation
+        if($product_confirmation && $product_id) {
+            Log::info("Product Confirmation Received", [
+                "product_confirmation" => $product_confirmation,
+                "product_id" => $product_id,
+                "sender" => $sender
+            ]);
+
+            if($product_confirmation === 'yes') {
+                $response = [
+                    "status"  => "success",
+                    "message" => "Thank you! 😊 We’ve received your confirmation. Please continue to the next step.",
+                ];
+            } else {
+                $response = [
+                    "status"  => "closed",
+                    "message" => "Thank you for contacting us. You will receive a callback during our business hours, Monday to Friday, 10:00 AM – 6:00 PM.",
+                ];
+            }
+             return response()->json($response);
+        }
+
+        // 5 handle Customer Address Details
+        if($invoice_date && $pincode && $address) {
+            Log::info("Customer Address Details Received", [
+                "invoice_date" => $invoice_date,
+                "pincode" => $pincode,
+                "address" => $address,
+                "sender" => $sender
+            ]);
+            $callId = 'CB' . strtoupper(uniqid());
+            $response = [
+                "status"  => "success",
+                "message" => "Thank you! 😊 We’ve received your details, and our team will reach out soon.",
+                "call_booking_number" => $callId ?? null,
+            ];
+            return response()->json($response);
+        }
+
+        // 6 handle Call Booking Number
+        if($call_booking_number) {
+            Log::info("Call Booking Number Received", [
+                "call_booking_number" => $call_booking_number,
+                "sender" => $sender
+            ]); 
+
+            if(str_starts_with($call_booking_number, 'cb')) {
+                $callId = strtoupper($call_booking_number);
+                $response = [
+                    "status"  => "success",
+                    "message" => "Your Call Booking Number: {$callId} is being processed. Our team will reach out to you soon.",
+                    "call_id" => $callId,
+                    "service_partner" => "KGA Test Service Team",
+                    "service_partner_contact_number" => "9876543210"
+                ];
+
+            } else {
+                $response = [
+                    "status"  => "failed",
+                    "message" => "The provided Call Booking ID is incorrect. Kindly enter the correct Call Booking ID.",
+                ];
+            }
+            return response()->json($response);
+        }
+        // Step 1.2.2 handle Call Booked ID
+        if($call_booked_id){
+            Log::info("Call Booked ID Received", [
+                "call_booked_id" => $call_booked_id,
+                "sender" => $sender
+            ]); 
+
+            if(str_starts_with($call_booked_id, 'cb')) {
+                $callId = strtoupper($call_booked_id);
+                $response = [
+                    "status"  => "success",
+                    "message" => "Your Call Booking ID: {$callId} is being processed. Our team will reach out to you soon.",
+                    "call_id" => $callId,
+                    "service_partner" => "KGA Test Service Team",
+                    "service_partner_contact_number" => "9876543210"
+                ];
+
+            } else {
+                $response = [
+                    "status"  => "failed",
+                    "message" => "The provided Call Booking ID is incorrect. Kindly enter the correct Call Booking ID.",
+                ];
+            }
+            return response()->json($response);
+        }
+
+
+
+        $response = [
+            "status"  => "closed",
+            "message" => "Thank you for contacting us. You will receive a callback during our business hours, Monday to Friday, 10:00 AM – 6:00 PM.",
+        ];
+        return response()->json($response);
     }
 
 
@@ -140,17 +250,12 @@ class WhatsappChatbotController extends Controller
             Log::info('WhatsApp Button Response', $response);
 
             return response()->json($response);
-        } 
-        else {
-
+        }else {
             Log::info("Call Status Request Detected");
-
             $response = [
                 "status"  => "success",
                 "message" => "Kindly enter your Call Booking ID"
             ];
-
-            Log::info("Final Response (Call Status)", $response);
 
             return response()->json($response);
         }
@@ -167,25 +272,26 @@ class WhatsappChatbotController extends Controller
 
     private function validateProduct($sl)
     {
-        $product = KgaSalesData::where('serial', $sl)->first();
+        $productStock = StockBarcode::where('barcode_no', $sl)->where('is_stock_out', 1)->first();
 
-        if (!$product) {
+        if (!$productStock) {
             $response = [
                 "status"  => "failed",
-                "code"    => 404,
-                "message" => "Kindly enter your Product Serial Number.",
+                "message" => "Thank you for connecting with us. The provided SL No is incorrect. Kindly enter the correct SL No.",
             ];
         } else {
             $response = [
                 "status"  => "success",
-                "code"    => 200,
-                "message" => "Product Found: " . $product->name,
+                "message" => "product found",
+                "product" => optional($productStock->product)->title,
+                "product_id" => optional($productStock->product)->id,
+
             ];
         }
 
         return response()->json($response);
     }
-
+    
 
 
     // <?php
